@@ -1,0 +1,71 @@
+using ErrorOr;
+using Supabase.Gotrue.Exceptions;
+
+namespace FamilyTreeApiV2.Features.Auth;
+
+public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepository)
+{
+    public async Task<ErrorOr<AuthResponse>> SignUpAsync(SignUpRequest request)
+    {
+        Supabase.Gotrue.Session? session;
+
+        try
+        {
+            session = await supabase.Auth.SignUp(request.Email, request.Password);
+        }
+        catch (GotrueException ex) when (ex.Message.Contains("already registered", StringComparison.OrdinalIgnoreCase))
+        {
+            return AuthErrors.EmailTaken;
+        }
+        catch (GotrueException ex)
+        {
+            return AuthErrors.SignUpFailed(ex.Message);
+        }
+
+        if (session?.User is null || session.AccessToken is null || session.RefreshToken is null)
+            return AuthErrors.SignUpNoSession;
+
+        try
+        {
+            await authRepository.InsertUserAsync(session.User.Id!, request.FirstName, request.LastName, request.Email);
+        }
+        catch (Exception ex)
+        {
+            return AuthErrors.ProfileWriteFailed(ex.Message);
+        }
+
+        return new AuthResponse(
+            session.AccessToken,
+            session.RefreshToken,
+            new UserDto(session.User.Id!, session.User.Email!, request.FirstName, request.LastName)
+        );
+    }
+
+    public async Task<ErrorOr<AuthResponse>> LoginAsync(LoginRequest request)
+    {
+        Supabase.Gotrue.Session? session;
+
+        try
+        {
+            session = await supabase.Auth.SignIn(request.Email, request.Password);
+        }
+        catch (GotrueException)
+        {
+            return AuthErrors.InvalidCredentials;
+        }
+
+        if (session?.User is null || session.AccessToken is null  || session.RefreshToken is null)
+            return AuthErrors.LoginFailed;
+
+        var names = await authRepository.GetUserNamesAsync(session.User.Id!);
+
+        if (names is null)
+            return AuthErrors.UserProfileNotFound;
+
+        return new AuthResponse(
+            session.AccessToken,
+            session.RefreshToken,
+            new UserDto(session.User.Id!, session.User.Email!, names.Value.FirstName, names.Value.LastName)
+        );
+    }
+}
