@@ -53,7 +53,7 @@ public class BoardsHandler_DeleteBoardTests
     }
 
     [Fact]
-    public async Task DeleteBoardAsync_WhenCallerIsOwner_ShouldSoftDeleteAndReturnDeleted()
+    public async Task DeleteBoardAsync_WhenCallerIsOwner_ShouldDeleteAndReturnDeleted()
     {
         var boardId = Guid.NewGuid();
 
@@ -62,13 +62,13 @@ public class BoardsHandler_DeleteBoardTests
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
-            .Setup(r => r.SoftDeleteBoardAsync(boardId))
+            .Setup(r => r.DeleteBoardAsync(boardId))
             .Returns(Task.CompletedTask);
 
         var result = await _handler.DeleteBoardAsync(boardId, UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(Result.Deleted);
-        _repoMock.Verify(r => r.SoftDeleteBoardAsync(boardId), Times.Once);
+        _repoMock.Verify(r => r.DeleteBoardAsync(boardId), Times.Once);
     }
 }

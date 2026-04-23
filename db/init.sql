@@ -11,8 +11,6 @@ CREATE TABLE IF NOT EXISTS public.users (
 CREATE TABLE IF NOT EXISTS public.boards (
     id         uuid        NOT NULL DEFAULT gen_random_uuid(),
     name       text        NOT NULL,
-    is_deleted bool        NOT NULL DEFAULT false,
-    deleted_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT boards_pkey PRIMARY KEY (id)
 );
@@ -54,10 +52,25 @@ CREATE TABLE IF NOT EXISTS public.persons (
     title         text,
     religion      text,
     notes         text,
-    is_deleted    bool        NOT NULL DEFAULT false,
-    deleted_at    timestamptz,
     created_at    timestamptz NOT NULL DEFAULT now(),
     birth_date_id uuid,
     death_date_id uuid,
     CONSTRAINT pk_persons PRIMARY KEY (id)
 );
+
+CREATE OR REPLACE FUNCTION delete_person_fuzzy_dates()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.birth_date_id IS NOT NULL THEN
+        DELETE FROM public.fuzzy_dates WHERE id = OLD.birth_date_id;
+    END IF;
+    IF OLD.death_date_id IS NOT NULL THEN
+        DELETE FROM public.fuzzy_dates WHERE id = OLD.death_date_id;
+    END IF;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_delete_person_fuzzy_dates
+BEFORE DELETE ON public.persons
+FOR EACH ROW EXECUTE FUNCTION delete_person_fuzzy_dates();

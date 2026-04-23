@@ -136,8 +136,12 @@ Whenever a new migration is added, `db/init.sql` must be updated accordingly —
 | `audit_logs` | Planned | Append-only log of all write actions, stores JSON snapshot of resource state |
 | `documents` | Planned | File metadata. Actual files stored in Supabase Storage. |
 
-### Soft Delete Strategy
-All data tables have `is_deleted (bool)` and `deleted_at (timestamptz)`. DELETE endpoints set `is_deleted = true` — no physical deletion. Physical deletion only happens when an entire board is deleted (cascading hard delete). All GET queries filter `WHERE is_deleted = false`.
+### Delete Strategy
+All DELETE endpoints perform hard deletes (physical `DELETE` statements). No soft delete — there are no `is_deleted` or `deleted_at` columns.
+
+Cascading is handled at two levels:
+- **PostgreSQL FK cascade:** `board_members` and `persons` have `ON DELETE CASCADE` on their `board_id` FK — deleting a board removes all its members and persons automatically.
+- **PostgreSQL trigger:** A `BEFORE DELETE` trigger on `persons` (`trigger_delete_person_fuzzy_dates`) deletes the associated `fuzzy_dates` rows for `birth_date_id` and `death_date_id`. This trigger also fires for cascade-deletes caused by a board delete.
 
 ### Board Scoping
 Every data record (person, relation, residence, document, lock, audit entry) is scoped to a `board_id`. No data is bound to a `user_id` directly. Access is controlled via the `board_members` table.

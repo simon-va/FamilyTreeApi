@@ -7,7 +7,7 @@ public interface IBoardsRepository
     Task<BoardRow> CreateBoardAsync(string name, Guid userId);
     Task<IEnumerable<BoardRow>> GetBoardsByUserIdAsync(Guid userId);
     Task<BoardRole?> GetUserRoleOnBoardAsync(Guid boardId, Guid userId);
-    Task SoftDeleteBoardAsync(Guid boardId);
+    Task DeleteBoardAsync(Guid boardId);
 }
 
 public record BoardRow(Guid Id, string Name, BoardRole Role, DateTime CreatedAt);

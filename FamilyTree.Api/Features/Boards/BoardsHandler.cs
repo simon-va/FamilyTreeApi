@@ -31,7 +31,7 @@ public class BoardsHandler(IBoardsRepository repository)
         if (role != BoardRole.Owner)
             return BoardsErrors.Forbidden;
 
-        await repository.SoftDeleteBoardAsync(boardId);
+        await repository.DeleteBoardAsync(boardId);
 
         return Result.Deleted;
     }

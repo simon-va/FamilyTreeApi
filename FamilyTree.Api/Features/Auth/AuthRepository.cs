@@ -41,7 +41,6 @@ public class AuthRepository(IDbConnectionFactory dbConnectionFactory) : IAuthRep
                 JOIN public.boards b ON b.id = bm.board_id
                 WHERE bm.user_id = @UserId
                   AND bm.role = 'owner'
-                  AND b.is_deleted = false
                   AND (
                       SELECT COUNT(*) FROM public.board_members bm2
                       WHERE bm2.board_id = bm.board_id AND bm2.role = 'owner'

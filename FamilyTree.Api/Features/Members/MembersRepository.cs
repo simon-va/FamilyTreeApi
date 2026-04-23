@@ -11,12 +11,10 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
         using var connection = dbConnectionFactory.CreateConnection();
 
         const string sql = @"
-            SELECT bm.role
-            FROM public.board_members bm
-            JOIN public.boards b ON b.id = bm.board_id
-            WHERE bm.board_id = @BoardId
-              AND bm.user_id  = @UserId
-              AND b.is_deleted = false";
+            SELECT role
+            FROM public.board_members
+            WHERE board_id = @BoardId
+              AND user_id  = @UserId";
 
         var roleString = await connection.ExecuteScalarAsync<string?>(sql, new { BoardId = boardId, UserId = userId });
         return roleString is null ? null : Enum.Parse<BoardRole>(roleString, ignoreCase: true);
@@ -37,9 +35,7 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
                 bm.created_at AS CreatedAt
             FROM public.board_members bm
             JOIN public.users u ON u.id = bm.user_id
-            JOIN public.boards b ON b.id = bm.board_id
             WHERE bm.board_id = @BoardId
-              AND b.is_deleted = false
             ORDER BY bm.created_at";
 
         return await connection.QueryAsync<MemberRow>(sql, new { BoardId = boardId });
@@ -60,10 +56,8 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
                 bm.created_at AS CreatedAt
             FROM public.board_members bm
             JOIN public.users u ON u.id = bm.user_id
-            JOIN public.boards b ON b.id = bm.board_id
             WHERE bm.board_id = @BoardId
-              AND bm.id       = @MemberId
-              AND b.is_deleted = false";
+              AND bm.id       = @MemberId";
 
         return await connection.QuerySingleOrDefaultAsync<MemberRow>(sql,
             new { BoardId = boardId, MemberId = memberId });

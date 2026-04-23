@@ -13,12 +13,10 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
         using var connection = dbConnectionFactory.CreateConnection();
 
         const string sql = @"
-            SELECT bm.role
-            FROM public.board_members bm
-            JOIN public.boards b ON b.id = bm.board_id
-            WHERE bm.board_id = @BoardId
-              AND bm.user_id  = @UserId
-              AND b.is_deleted = false";
+            SELECT role
+            FROM public.board_members
+            WHERE board_id = @BoardId
+              AND user_id  = @UserId";
 
         var roleString = await connection.ExecuteScalarAsync<string?>(sql, new { BoardId = boardId, UserId = userId });
         return roleString is null ? null : Enum.Parse<BoardRole>(roleString, ignoreCase: true);
@@ -65,8 +63,7 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
             FROM public.persons p
             LEFT JOIN public.fuzzy_dates bd ON p.birth_date_id = bd.id
             LEFT JOIN public.fuzzy_dates dd ON p.death_date_id = dd.id
-            WHERE p.board_id   = @BoardId
-              AND p.is_deleted = false
+            WHERE p.board_id = @BoardId
             ORDER BY p.last_name, p.first_name";
 
         return await connection.QueryAsync<PersonRow, FuzzyDate, FuzzyDate, (PersonRow, FuzzyDate?, FuzzyDate?)>(
@@ -102,9 +99,8 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
                 birth_date_id   AS BirthDateId,
                 death_date_id   AS DeathDateId
             FROM public.persons
-            WHERE id         = @PersonId
-              AND board_id   = @BoardId
-              AND is_deleted = false";
+            WHERE id       = @PersonId
+              AND board_id = @BoardId";
 
         return await connection.QuerySingleOrDefaultAsync<PersonRow>(sql,
             new { PersonId = personId, BoardId = boardId });
@@ -189,9 +185,8 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
                 notes         = @Notes,
                 birth_date_id = @BirthDateId,
                 death_date_id = @DeathDateId
-            WHERE id         = @PersonId
-              AND board_id   = @BoardId
-              AND is_deleted = false
+            WHERE id       = @PersonId
+              AND board_id = @BoardId
             RETURNING
                 id              AS Id,
                 board_id        AS BoardId,
@@ -235,12 +230,9 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
         using var connection = dbConnectionFactory.CreateConnection();
 
         const string sql = @"
-            UPDATE public.persons
-            SET is_deleted = true,
-                deleted_at = now()
-            WHERE id         = @PersonId
-              AND board_id   = @BoardId
-              AND is_deleted = false";
+            DELETE FROM public.persons
+            WHERE id       = @PersonId
+              AND board_id = @BoardId";
 
         var deletedCount = await connection.ExecuteAsync(sql,
             new { PersonId = personId, BoardId = boardId });

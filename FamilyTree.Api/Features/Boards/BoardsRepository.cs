@@ -37,8 +37,7 @@ public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoard
             SELECT b.id, b.name, bm.role, b.created_at AS CreatedAt
             FROM public.boards b
             JOIN public.board_members bm ON bm.board_id = b.id
-            WHERE bm.user_id = @UserId
-              AND b.is_deleted = false";
+            WHERE bm.user_id = @UserId";
 
         return await connection.QueryAsync<BoardRow>(sql, new { UserId = userId });
     }
@@ -48,25 +47,20 @@ public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoard
         using var connection = dbConnectionFactory.CreateConnection();
 
         const string sql = @"
-            SELECT bm.role
-            FROM public.board_members bm
-            JOIN public.boards b ON b.id = bm.board_id
-            WHERE bm.board_id = @BoardId
-              AND bm.user_id = @UserId
-              AND b.is_deleted = false";
+            SELECT role
+            FROM public.board_members
+            WHERE board_id = @BoardId
+              AND user_id  = @UserId";
 
         var roleString = await connection.ExecuteScalarAsync<string?>(sql, new { BoardId = boardId, UserId = userId });
         return roleString is null ? null : Enum.Parse<BoardRole>(roleString, ignoreCase: true);
     }
 
-    public async Task SoftDeleteBoardAsync(Guid boardId)
+    public async Task DeleteBoardAsync(Guid boardId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
-        const string sql = @"
-            UPDATE public.boards
-            SET is_deleted = true, deleted_at = now()
-            WHERE id = @BoardId";
+        const string sql = "DELETE FROM public.boards WHERE id = @BoardId";
 
         await connection.ExecuteAsync(sql, new { BoardId = boardId });
     }
