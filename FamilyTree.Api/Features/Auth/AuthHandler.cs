@@ -1,9 +1,10 @@
 using ErrorOr;
+using FamilyTreeApiV2.Infrastructure.Supabase;
 using Supabase.Gotrue.Exceptions;
 
 namespace FamilyTreeApiV2.Features.Auth;
 
-public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepository)
+public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepository, ISupabaseAdminService supabaseAdmin)
 {
     public async Task<ErrorOr<AuthResponse>> SignUpAsync(SignUpRequest request)
     {
@@ -67,5 +68,20 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
             session.RefreshToken,
             new UserDto(session.User.Id!, session.User.Email!, names.Value.FirstName, names.Value.LastName)
         );
+    }
+
+    public async Task<ErrorOr<Deleted>> DeleteAccountAsync(string userId)
+    {
+        var isLastOwner = await authRepository.IsLastOwnerOfAnyBoardAsync(userId);
+        if (isLastOwner)
+            return AuthErrors.LastBoardOwner;
+
+        var deleted = await supabaseAdmin.DeleteUserAsync(userId);
+        if (!deleted)
+            return AuthErrors.DeleteFailed;
+
+        await authRepository.DeleteUserAsync(userId);
+
+        return Result.Deleted;
     }
 }

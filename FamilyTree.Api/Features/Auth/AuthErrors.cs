@@ -24,4 +24,11 @@ public static class AuthErrors
 
     public static Error UserProfileNotFound =>
         Error.NotFound("Auth.UserProfileNotFound", "User profile not found.");
+
+    public static Error LastBoardOwner =>
+        Error.Conflict("Auth.LastBoardOwner",
+            "Account cannot be deleted. You are the sole owner of one or more boards. Delete those boards first.");
+
+    public static Error DeleteFailed =>
+        Error.Unexpected("Auth.DeleteFailed", "Account could not be deleted.");
 }

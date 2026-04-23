@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using FamilyTreeApiV2.Common;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FamilyTreeApiV2.Features.Auth;
@@ -38,5 +40,17 @@ public class AuthController(
         return result.IsError
             ? ErrorMapper.ToActionResult(result.Errors, this)
             : Ok(result.Value);
+    }
+
+    [HttpDelete("account")]
+    [Authorize]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var result = await handler.DeleteAccountAsync(userId);
+
+        return result.IsError
+            ? ErrorMapper.ToActionResult(result.Errors, this)
+            : NoContent();
     }
 }

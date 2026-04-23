@@ -3,6 +3,7 @@ using FamilyTreeApiV2.Features.Boards;
 using FamilyTreeApiV2.Features.Members;
 using FamilyTreeApiV2.Features.Persons;
 using FamilyTreeApiV2.Infrastructure.Database;
+using FamilyTreeApiV2.Infrastructure.Supabase;
 using FamilyTreeApiV2.Shared.FuzzyDates;
 using FluentValidation;
 
@@ -14,7 +15,9 @@ public static class ServiceExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddHttpClient();
         services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+        services.AddScoped<ISupabaseAdminService, SupabaseAdminService>();
 
         var supabaseUrl = configuration["Supabase:Url"]
             ?? throw new InvalidOperationException("Supabase:Url is not configured.");
