@@ -120,6 +120,8 @@ Supabase (PostgreSQL). Hosted in EU region. DSGVO-compliant.
 ### Query Strategy
 Dapper with raw SQL. No ORM, no auto-migrations. Schema changes are written as plain SQL scripts and applied manually or via Supabase SQL editor.
 
+Whenever a new migration is added, `db/init.sql` must be updated accordingly — it is the consolidated local dev schema and must stay in sync with the migrations.
+
 ### Core Tables
 | Table | Status | Notes |
 |---|---|---|
