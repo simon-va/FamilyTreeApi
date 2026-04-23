@@ -6,7 +6,7 @@ namespace FamilyTreeApiV2.Features.Boards;
 
 public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoardsRepository
 {
-    public async Task<BoardRow> CreateBoardAsync(string name, string userId)
+    public async Task<BoardRow> CreateBoardAsync(string name, Guid userId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
         using var transaction = connection.BeginTransaction();
@@ -20,7 +20,7 @@ public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoard
 
         const string insertMember = @"
             INSERT INTO public.board_members (board_id, user_id, role)
-            VALUES (@BoardId, @UserId::uuid, 'owner')";
+            VALUES (@BoardId, @UserId, 'owner')";
 
         await connection.ExecuteAsync(insertMember, new { BoardId = board.Id, UserId = userId }, transaction);
 
@@ -29,7 +29,7 @@ public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoard
         return new BoardRow(board.Id, board.Name, BoardRole.Owner, board.CreatedAt);
     }
 
-    public async Task<IEnumerable<BoardRow>> GetBoardsByUserIdAsync(string userId)
+    public async Task<IEnumerable<BoardRow>> GetBoardsByUserIdAsync(Guid userId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -37,13 +37,13 @@ public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoard
             SELECT b.id, b.name, bm.role, b.created_at AS CreatedAt
             FROM public.boards b
             JOIN public.board_members bm ON bm.board_id = b.id
-            WHERE bm.user_id = @UserId::uuid
+            WHERE bm.user_id = @UserId
               AND b.is_deleted = false";
 
         return await connection.QueryAsync<BoardRow>(sql, new { UserId = userId });
     }
 
-    public async Task<BoardRole?> GetUserRoleOnBoardAsync(Guid boardId, string userId)
+    public async Task<BoardRole?> GetUserRoleOnBoardAsync(Guid boardId, Guid userId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -52,7 +52,7 @@ public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoard
             FROM public.board_members bm
             JOIN public.boards b ON b.id = bm.board_id
             WHERE bm.board_id = @BoardId
-              AND bm.user_id = @UserId::uuid
+              AND bm.user_id = @UserId
               AND b.is_deleted = false";
 
         var roleString = await connection.ExecuteScalarAsync<string?>(sql, new { BoardId = boardId, UserId = userId });

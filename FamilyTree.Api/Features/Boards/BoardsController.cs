@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using FamilyTreeApiV2.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +20,7 @@ public class BoardsController(
         if (!validation.IsValid)
             return BadRequest(new ValidationProblemDetails(validation.ToDictionary()));
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.GetUserId();
         var result = await handler.CreateBoardAsync(request, userId);
 
         return result.IsError
@@ -32,7 +31,7 @@ public class BoardsController(
     [HttpGet]
     public async Task<IActionResult> GetBoards()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.GetUserId();
         var result = await handler.GetBoardsAsync(userId);
 
         return result.IsError
@@ -43,7 +42,7 @@ public class BoardsController(
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteBoard(Guid id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.GetUserId();
         var result = await handler.DeleteBoardAsync(id, userId);
 
         return result.IsError

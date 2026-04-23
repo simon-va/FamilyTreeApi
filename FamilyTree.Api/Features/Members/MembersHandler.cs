@@ -5,7 +5,7 @@ namespace FamilyTreeApiV2.Features.Members;
 
 public class MembersHandler(IMembersRepository repository)
 {
-    public async Task<ErrorOr<List<MemberResponse>>> GetMembersAsync(Guid boardId, string callerId)
+    public async Task<ErrorOr<List<MemberResponse>>> GetMembersAsync(Guid boardId, Guid callerId)
     {
         var role = await repository.GetCallerRoleAsync(boardId, callerId);
         if (role is null)
@@ -15,7 +15,7 @@ public class MembersHandler(IMembersRepository repository)
         return members.Select(ToResponse).ToList();
     }
 
-    public async Task<ErrorOr<MemberResponse>> AddMemberAsync(Guid boardId, AddMemberRequest request, string callerId)
+    public async Task<ErrorOr<MemberResponse>> AddMemberAsync(Guid boardId, AddMemberRequest request, Guid callerId)
     {
         var callerRole = await repository.GetCallerRoleAsync(boardId, callerId);
         if (callerRole is null)
@@ -36,7 +36,7 @@ public class MembersHandler(IMembersRepository repository)
     }
 
     public async Task<ErrorOr<MemberResponse>> UpdateMemberRoleAsync(
-        Guid boardId, Guid memberId, UpdateMemberRoleRequest request, string callerId)
+        Guid boardId, Guid memberId, UpdateMemberRoleRequest request, Guid callerId)
     {
         var callerRole = await repository.GetCallerRoleAsync(boardId, callerId);
         if (callerRole is null)
@@ -47,7 +47,7 @@ public class MembersHandler(IMembersRepository repository)
         var targetMember = await repository.GetMemberByIdAsync(boardId, memberId);
         if (targetMember is null)
             return MembersErrors.MemberNotFound;
-        if (targetMember.UserId.ToString() == callerId)
+        if (targetMember.UserId == callerId)
             return MembersErrors.CannotEditSelf;
 
         var updated = await repository.UpdateMemberRoleAsync(boardId, memberId, request.Role);
@@ -57,7 +57,7 @@ public class MembersHandler(IMembersRepository repository)
         return ToResponse(updated);
     }
 
-    public async Task<ErrorOr<Deleted>> RemoveMemberAsync(Guid boardId, Guid memberId, string callerId)
+    public async Task<ErrorOr<Deleted>> RemoveMemberAsync(Guid boardId, Guid memberId, Guid callerId)
     {
         var callerRole = await repository.GetCallerRoleAsync(boardId, callerId);
         if (callerRole is null)
@@ -68,7 +68,7 @@ public class MembersHandler(IMembersRepository repository)
         var targetMember = await repository.GetMemberByIdAsync(boardId, memberId);
         if (targetMember is null)
             return MembersErrors.MemberNotFound;
-        if (targetMember.UserId.ToString() == callerId)
+        if (targetMember.UserId == callerId)
             return MembersErrors.CannotRemoveSelf;
 
         var deleted = await repository.DeleteMemberAsync(boardId, memberId);

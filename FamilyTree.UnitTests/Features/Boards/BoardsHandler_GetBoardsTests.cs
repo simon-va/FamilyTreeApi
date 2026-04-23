@@ -10,6 +10,8 @@ public class BoardsHandler_GetBoardsTests
     // Rules:
     // - No business rules; GetBoardsAsync delegates entirely to the repository and maps the result.
 
+    private static readonly Guid UserId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IBoardsRepository> _repoMock = new();
     private readonly BoardsHandler _handler;
 
@@ -28,10 +30,10 @@ public class BoardsHandler_GetBoardsTests
         };
 
         _repoMock
-            .Setup(r => r.GetBoardsByUserIdAsync("user-1"))
+            .Setup(r => r.GetBoardsByUserIdAsync(UserId))
             .ReturnsAsync(rows);
 
-        var result = await _handler.GetBoardsAsync("user-1");
+        var result = await _handler.GetBoardsAsync(UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().HaveCount(2);
@@ -45,10 +47,10 @@ public class BoardsHandler_GetBoardsTests
     public async Task GetBoardsAsync_WhenRepositoryReturnsEmpty_ShouldReturnEmptyList()
     {
         _repoMock
-            .Setup(r => r.GetBoardsByUserIdAsync("user-1"))
+            .Setup(r => r.GetBoardsByUserIdAsync(UserId))
             .ReturnsAsync([]);
 
-        var result = await _handler.GetBoardsAsync("user-1");
+        var result = await _handler.GetBoardsAsync(UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().BeEmpty();

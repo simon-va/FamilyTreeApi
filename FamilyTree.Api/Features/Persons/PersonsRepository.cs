@@ -8,7 +8,7 @@ namespace FamilyTreeApiV2.Features.Persons;
 
 public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPersonsRepository
 {
-    public async Task<BoardRole?> GetCallerRoleAsync(Guid boardId, string userId)
+    public async Task<BoardRole?> GetCallerRoleAsync(Guid boardId, Guid userId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -17,7 +17,7 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
             FROM public.board_members bm
             JOIN public.boards b ON b.id = bm.board_id
             WHERE bm.board_id = @BoardId
-              AND bm.user_id  = @UserId::uuid
+              AND bm.user_id  = @UserId
               AND b.is_deleted = false";
 
         var roleString = await connection.ExecuteScalarAsync<string?>(sql, new { BoardId = boardId, UserId = userId });

@@ -26,9 +26,11 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
         if (session?.User is null || session.AccessToken is null || session.RefreshToken is null)
             return AuthErrors.SignUpNoSession;
 
+        var userId = Guid.Parse(session.User.Id!);
+
         try
         {
-            await authRepository.InsertUserAsync(session.User.Id!, request.FirstName, request.LastName, request.Email);
+            await authRepository.InsertUserAsync(userId, request.FirstName, request.LastName, request.Email);
         }
         catch (Exception ex)
         {
@@ -38,7 +40,7 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
         return new AuthResponse(
             session.AccessToken,
             session.RefreshToken,
-            new UserDto(session.User.Id!, session.User.Email!, request.FirstName, request.LastName)
+            new UserDto(userId, session.User.Email!, request.FirstName, request.LastName)
         );
     }
 
@@ -58,7 +60,8 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
         if (session?.User is null || session.AccessToken is null  || session.RefreshToken is null)
             return AuthErrors.LoginFailed;
 
-        var names = await authRepository.GetUserNamesAsync(session.User.Id!);
+        var userId = Guid.Parse(session.User.Id!);
+        var names = await authRepository.GetUserNamesAsync(userId);
 
         if (names is null)
             return AuthErrors.UserProfileNotFound;
@@ -66,11 +69,11 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
         return new AuthResponse(
             session.AccessToken,
             session.RefreshToken,
-            new UserDto(session.User.Id!, session.User.Email!, names.Value.FirstName, names.Value.LastName)
+            new UserDto(userId, session.User.Email!, names.Value.FirstName, names.Value.LastName)
         );
     }
 
-    public async Task<ErrorOr<Deleted>> DeleteAccountAsync(string userId)
+    public async Task<ErrorOr<Deleted>> DeleteAccountAsync(Guid userId)
     {
         var isLastOwner = await authRepository.IsLastOwnerOfAnyBoardAsync(userId);
         if (isLastOwner)

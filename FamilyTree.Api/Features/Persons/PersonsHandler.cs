@@ -10,7 +10,7 @@ public class PersonsHandler(
     IFuzzyDateRepository fuzzyDateRepository,
     IDbConnectionFactory connectionFactory)
 {
-    public async Task<ErrorOr<List<PersonResponse>>> GetAllAsync(Guid boardId, string userId)
+    public async Task<ErrorOr<List<PersonResponse>>> GetAllAsync(Guid boardId, Guid userId)
     {
         var role = await repository.GetCallerRoleAsync(boardId, userId);
         if (role is null)
@@ -20,7 +20,7 @@ public class PersonsHandler(
         return persons.Select(p => ToResponse(p.Person, p.BirthDate, p.DeathDate)).ToList();
     }
 
-    public async Task<ErrorOr<PersonResponse>> CreateAsync(Guid boardId, CreatePersonRequest request, string userId)
+    public async Task<ErrorOr<PersonResponse>> CreateAsync(Guid boardId, CreatePersonRequest request, Guid userId)
     {
         var role = await repository.GetCallerRoleAsync(boardId, userId);
         if (role is null)
@@ -49,7 +49,7 @@ public class PersonsHandler(
     }
 
     public async Task<ErrorOr<PersonResponse>> UpdateAsync(
-        Guid boardId, Guid personId, UpdatePersonRequest request, string userId)
+        Guid boardId, Guid personId, UpdatePersonRequest request, Guid userId)
     {
         var role = await repository.GetCallerRoleAsync(boardId, userId);
         if (role is null)
@@ -83,7 +83,7 @@ public class PersonsHandler(
         return ToResponse(person, birthResult.Value, deathResult.Value);
     }
 
-    public async Task<ErrorOr<Deleted>> DeleteAsync(Guid boardId, Guid personId, string userId)
+    public async Task<ErrorOr<Deleted>> DeleteAsync(Guid boardId, Guid personId, Guid userId)
     {
         var role = await repository.GetCallerRoleAsync(boardId, userId);
         if (role is null)

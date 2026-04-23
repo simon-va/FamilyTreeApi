@@ -5,14 +5,14 @@ namespace FamilyTreeApiV2.Features.Boards;
 
 public class BoardsHandler(IBoardsRepository repository)
 {
-    public async Task<ErrorOr<BoardResponse>> CreateBoardAsync(CreateBoardRequest request, string userId)
+    public async Task<ErrorOr<BoardResponse>> CreateBoardAsync(CreateBoardRequest request, Guid userId)
     {
         var board = await repository.CreateBoardAsync(request.Name, userId);
 
         return new BoardResponse(board.Id, board.Name, board.Role, board.CreatedAt);
     }
 
-    public async Task<ErrorOr<List<BoardResponse>>> GetBoardsAsync(string userId)
+    public async Task<ErrorOr<List<BoardResponse>>> GetBoardsAsync(Guid userId)
     {
         var boards = await repository.GetBoardsByUserIdAsync(userId);
 
@@ -21,7 +21,7 @@ public class BoardsHandler(IBoardsRepository repository)
             .ToList();
     }
 
-    public async Task<ErrorOr<Deleted>> DeleteBoardAsync(Guid boardId, string userId)
+    public async Task<ErrorOr<Deleted>> DeleteBoardAsync(Guid boardId, Guid userId)
     {
         var role = await repository.GetUserRoleOnBoardAsync(boardId, userId);
 

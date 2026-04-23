@@ -14,6 +14,8 @@ public class PersonsHandler_DeleteTests
     // - Only Owner and Editor may delete (Viewer → Forbidden)
     // - Person must exist (false from repository → PersonNotFound)
 
+    private static readonly Guid UserId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IPersonsRepository> _repoMock = new();
     private readonly Mock<IFuzzyDateRepository> _fuzzyDateRepoMock = new();
     private readonly Mock<IDbConnectionFactory> _connectionFactoryMock = new();
@@ -31,10 +33,10 @@ public class PersonsHandler_DeleteTests
         var personId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.DeleteAsync(boardId, personId, "user-1");
+        var result = await _handler.DeleteAsync(boardId, personId, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.BoardNotFound");
@@ -47,10 +49,10 @@ public class PersonsHandler_DeleteTests
         var personId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Viewer);
 
-        var result = await _handler.DeleteAsync(boardId, personId, "user-1");
+        var result = await _handler.DeleteAsync(boardId, personId, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.Forbidden");
@@ -63,14 +65,14 @@ public class PersonsHandler_DeleteTests
         var personId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Editor);
 
         _repoMock
             .Setup(r => r.DeleteAsync(boardId, personId))
             .ReturnsAsync(false);
 
-        var result = await _handler.DeleteAsync(boardId, personId, "user-1");
+        var result = await _handler.DeleteAsync(boardId, personId, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.PersonNotFound");
@@ -85,14 +87,14 @@ public class PersonsHandler_DeleteTests
         var personId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(role);
 
         _repoMock
             .Setup(r => r.DeleteAsync(boardId, personId))
             .ReturnsAsync(true);
 
-        var result = await _handler.DeleteAsync(boardId, personId, "user-1");
+        var result = await _handler.DeleteAsync(boardId, personId, UserId);
 
         result.IsError.Should().BeFalse();
     }

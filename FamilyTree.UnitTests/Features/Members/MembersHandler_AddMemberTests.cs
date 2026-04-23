@@ -13,6 +13,8 @@ public class MembersHandler_AddMemberTests
     // - Target user must exist by email (null → UserNotFound)
     // - Target user must not already be a board member (true → AlreadyMember)
 
+    private static readonly Guid CallerId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IMembersRepository> _repoMock = new();
     private readonly MembersHandler _handler;
 
@@ -28,10 +30,10 @@ public class MembersHandler_AddMemberTests
         var request = new AddMemberRequest("new@example.com", BoardRole.Editor);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.AddMemberAsync(boardId, request, "user-1");
+        var result = await _handler.AddMemberAsync(boardId, request, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.BoardNotFound");
@@ -44,10 +46,10 @@ public class MembersHandler_AddMemberTests
         var request = new AddMemberRequest("new@example.com", BoardRole.Editor);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Editor);
 
-        var result = await _handler.AddMemberAsync(boardId, request, "user-1");
+        var result = await _handler.AddMemberAsync(boardId, request, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.Forbidden");
@@ -60,14 +62,14 @@ public class MembersHandler_AddMemberTests
         var request = new AddMemberRequest("ghost@example.com", BoardRole.Editor);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
             .Setup(r => r.GetUserIdByEmailAsync("ghost@example.com"))
             .ReturnsAsync((Guid?)null);
 
-        var result = await _handler.AddMemberAsync(boardId, request, "user-1");
+        var result = await _handler.AddMemberAsync(boardId, request, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.UserNotFound");
@@ -81,7 +83,7 @@ public class MembersHandler_AddMemberTests
         var request = new AddMemberRequest("existing@example.com", BoardRole.Editor);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
@@ -92,7 +94,7 @@ public class MembersHandler_AddMemberTests
             .Setup(r => r.IsMemberAsync(boardId, targetUserId))
             .ReturnsAsync(true);
 
-        var result = await _handler.AddMemberAsync(boardId, request, "user-1");
+        var result = await _handler.AddMemberAsync(boardId, request, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.AlreadyMember");
@@ -108,7 +110,7 @@ public class MembersHandler_AddMemberTests
         var request = new AddMemberRequest("new@example.com", BoardRole.Editor);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
@@ -125,7 +127,7 @@ public class MembersHandler_AddMemberTests
             .Setup(r => r.AddMemberAsync(boardId, targetUserId, BoardRole.Editor))
             .ReturnsAsync(row);
 
-        var result = await _handler.AddMemberAsync(boardId, request, "user-1");
+        var result = await _handler.AddMemberAsync(boardId, request, CallerId);
 
         result.IsError.Should().BeFalse();
         result.Value.MemberId.Should().Be(memberId);

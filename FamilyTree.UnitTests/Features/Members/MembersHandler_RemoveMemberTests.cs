@@ -15,6 +15,8 @@ public class MembersHandler_RemoveMemberTests
     // - Owner cannot remove themselves (targetMember.UserId == callerId → CannotRemoveSelf)
     // - Concurrent deletion of the target member returns MemberNotFound (DeleteMemberAsync → false)
 
+    private static readonly Guid CallerId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IMembersRepository> _repoMock = new();
     private readonly MembersHandler _handler;
 
@@ -30,10 +32,10 @@ public class MembersHandler_RemoveMemberTests
         var memberId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.RemoveMemberAsync(boardId, memberId, "user-1");
+        var result = await _handler.RemoveMemberAsync(boardId, memberId, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.BoardNotFound");
@@ -46,10 +48,10 @@ public class MembersHandler_RemoveMemberTests
         var memberId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Editor);
 
-        var result = await _handler.RemoveMemberAsync(boardId, memberId, "user-1");
+        var result = await _handler.RemoveMemberAsync(boardId, memberId, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.Forbidden");
@@ -62,14 +64,14 @@ public class MembersHandler_RemoveMemberTests
         var memberId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
             .ReturnsAsync((MemberRow?)null);
 
-        var result = await _handler.RemoveMemberAsync(boardId, memberId, "user-1");
+        var result = await _handler.RemoveMemberAsync(boardId, memberId, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.MemberNotFound");
@@ -79,21 +81,19 @@ public class MembersHandler_RemoveMemberTests
     public async Task RemoveMemberAsync_WhenCallerTriesToRemoveSelf_ShouldReturnCannotRemoveSelfError()
     {
         var boardId = Guid.NewGuid();
-        var callerGuid = Guid.NewGuid();
-        var callerId = callerGuid.ToString();
         var memberId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, callerId))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new MemberRow(memberId, callerGuid, "Self", "User", "self@example.com", BoardRole.Owner, DateTime.UtcNow);
+        var targetMember = new MemberRow(memberId, CallerId, "Self", "User", "self@example.com", BoardRole.Owner, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
             .ReturnsAsync(targetMember);
 
-        var result = await _handler.RemoveMemberAsync(boardId, memberId, callerId);
+        var result = await _handler.RemoveMemberAsync(boardId, memberId, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.CannotRemoveSelf");
@@ -107,7 +107,7 @@ public class MembersHandler_RemoveMemberTests
         var targetUserId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         var targetMember = new MemberRow(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, DateTime.UtcNow);
@@ -120,7 +120,7 @@ public class MembersHandler_RemoveMemberTests
             .Setup(r => r.DeleteMemberAsync(boardId, memberId))
             .ReturnsAsync(false);
 
-        var result = await _handler.RemoveMemberAsync(boardId, memberId, "user-1");
+        var result = await _handler.RemoveMemberAsync(boardId, memberId, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.MemberNotFound");
@@ -134,7 +134,7 @@ public class MembersHandler_RemoveMemberTests
         var targetUserId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         var targetMember = new MemberRow(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, DateTime.UtcNow);
@@ -147,7 +147,7 @@ public class MembersHandler_RemoveMemberTests
             .Setup(r => r.DeleteMemberAsync(boardId, memberId))
             .ReturnsAsync(true);
 
-        var result = await _handler.RemoveMemberAsync(boardId, memberId, "user-1");
+        var result = await _handler.RemoveMemberAsync(boardId, memberId, CallerId);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(Result.Deleted);

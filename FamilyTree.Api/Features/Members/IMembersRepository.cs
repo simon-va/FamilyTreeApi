@@ -4,7 +4,7 @@ namespace FamilyTreeApiV2.Features.Members;
 
 public interface IMembersRepository
 {
-    Task<BoardRole?> GetCallerRoleAsync(Guid boardId, string userId);
+    Task<BoardRole?> GetCallerRoleAsync(Guid boardId, Guid userId);
     Task<IEnumerable<MemberRow>> GetMembersAsync(Guid boardId);
     Task<MemberRow?> GetMemberByIdAsync(Guid boardId, Guid memberId);
     Task<Guid?> GetUserIdByEmailAsync(string email);

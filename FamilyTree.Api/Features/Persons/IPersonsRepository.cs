@@ -6,7 +6,7 @@ namespace FamilyTreeApiV2.Features.Persons;
 
 public interface IPersonsRepository
 {
-    Task<BoardRole?> GetCallerRoleAsync(Guid boardId, string userId);
+    Task<BoardRole?> GetCallerRoleAsync(Guid boardId, Guid userId);
     Task<IEnumerable<(PersonRow Person, FuzzyDate? BirthDate, FuzzyDate? DeathDate)>> GetAllAsync(Guid boardId);
     Task<PersonRow?> GetByIdAsync(Guid boardId, Guid personId);
     Task<PersonRow> CreateAsync(Guid boardId, CreatePersonRequest request, Guid? birthDateId, Guid? deathDateId, IDbConnection connection, IDbTransaction transaction);

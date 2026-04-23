@@ -13,6 +13,8 @@ public class PersonsHandler_GetAllTests
     // - Caller must be a member of the board (role is null → BoardNotFound)
     // - All members (Owner, Editor, Viewer) may read
 
+    private static readonly Guid UserId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IPersonsRepository> _repoMock = new();
     private readonly Mock<IFuzzyDateRepository> _fuzzyDateRepoMock = new();
     private readonly Mock<IDbConnectionFactory> _connectionFactoryMock = new();
@@ -29,10 +31,10 @@ public class PersonsHandler_GetAllTests
         var boardId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.GetAllAsync(boardId, "user-1");
+        var result = await _handler.GetAllAsync(boardId, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.BoardNotFound");
@@ -52,14 +54,14 @@ public class PersonsHandler_GetAllTests
             null, null, null, null, null, null, createdAt, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(role);
 
         _repoMock
             .Setup(r => r.GetAllAsync(boardId))
             .ReturnsAsync(new[] { (row, (FuzzyDate?)null, (FuzzyDate?)null) });
 
-        var result = await _handler.GetAllAsync(boardId, "user-1");
+        var result = await _handler.GetAllAsync(boardId, UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().HaveCount(1);
@@ -90,14 +92,14 @@ public class PersonsHandler_GetAllTests
         };
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
             .Setup(r => r.GetAllAsync(boardId))
             .ReturnsAsync(new[] { (row, (FuzzyDate?)birthDate, (FuzzyDate?)null) });
 
-        var result = await _handler.GetAllAsync(boardId, "user-1");
+        var result = await _handler.GetAllAsync(boardId, UserId);
 
         result.IsError.Should().BeFalse();
         var birthDate2 = result.Value[0].BirthDate;

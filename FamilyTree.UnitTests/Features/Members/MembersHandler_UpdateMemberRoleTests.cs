@@ -14,6 +14,8 @@ public class MembersHandler_UpdateMemberRoleTests
     // - Owner cannot update their own role (targetMember.UserId == callerId → CannotEditSelf)
     // - Concurrent deletion of the target member returns MemberNotFound (UpdateMemberRoleAsync → null)
 
+    private static readonly Guid CallerId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IMembersRepository> _repoMock = new();
     private readonly MembersHandler _handler;
 
@@ -29,10 +31,10 @@ public class MembersHandler_UpdateMemberRoleTests
         var memberId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), "user-1");
+        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.BoardNotFound");
@@ -45,10 +47,10 @@ public class MembersHandler_UpdateMemberRoleTests
         var memberId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Editor);
 
-        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), "user-1");
+        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.Forbidden");
@@ -61,14 +63,14 @@ public class MembersHandler_UpdateMemberRoleTests
         var memberId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
             .ReturnsAsync((MemberRow?)null);
 
-        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), "user-1");
+        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.MemberNotFound");
@@ -78,21 +80,19 @@ public class MembersHandler_UpdateMemberRoleTests
     public async Task UpdateMemberRoleAsync_WhenCallerTriesToEditSelf_ShouldReturnCannotEditSelfError()
     {
         var boardId = Guid.NewGuid();
-        var callerGuid = Guid.NewGuid();
-        var callerId = callerGuid.ToString();
         var memberId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, callerId))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new MemberRow(memberId, callerGuid, "Self", "User", "self@example.com", BoardRole.Owner, DateTime.UtcNow);
+        var targetMember = new MemberRow(memberId, CallerId, "Self", "User", "self@example.com", BoardRole.Owner, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
             .ReturnsAsync(targetMember);
 
-        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), callerId);
+        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.CannotEditSelf");
@@ -106,7 +106,7 @@ public class MembersHandler_UpdateMemberRoleTests
         var targetUserId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         var targetMember = new MemberRow(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, DateTime.UtcNow);
@@ -119,7 +119,7 @@ public class MembersHandler_UpdateMemberRoleTests
             .Setup(r => r.UpdateMemberRoleAsync(boardId, memberId, BoardRole.Viewer))
             .ReturnsAsync((MemberRow?)null);
 
-        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), "user-1");
+        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.MemberNotFound");
@@ -134,7 +134,7 @@ public class MembersHandler_UpdateMemberRoleTests
         var createdAt = DateTime.UtcNow;
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         var targetMember = new MemberRow(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, createdAt);
@@ -149,7 +149,7 @@ public class MembersHandler_UpdateMemberRoleTests
             .Setup(r => r.UpdateMemberRoleAsync(boardId, memberId, BoardRole.Viewer))
             .ReturnsAsync(updatedRow);
 
-        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), "user-1");
+        var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), CallerId);
 
         result.IsError.Should().BeFalse();
         result.Value.MemberId.Should().Be(memberId);

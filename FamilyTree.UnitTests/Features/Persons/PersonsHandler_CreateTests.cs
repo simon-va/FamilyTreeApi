@@ -14,6 +14,8 @@ public class PersonsHandler_CreateTests
     // - Caller must be a member of the board (role is null → BoardNotFound)
     // - Only Owner and Editor may create (Viewer → Forbidden)
 
+    private static readonly Guid UserId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IPersonsRepository> _repoMock = new();
     private readonly Mock<IFuzzyDateRepository> _fuzzyDateRepoMock = new();
     private readonly Mock<IDbConnectionFactory> _connectionFactoryMock = new();
@@ -36,10 +38,10 @@ public class PersonsHandler_CreateTests
         var request = new CreatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.CreateAsync(boardId, request, "user-1");
+        var result = await _handler.CreateAsync(boardId, request, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.BoardNotFound");
@@ -52,10 +54,10 @@ public class PersonsHandler_CreateTests
         var request = new CreatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Viewer);
 
-        var result = await _handler.CreateAsync(boardId, request, "user-1");
+        var result = await _handler.CreateAsync(boardId, request, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.Forbidden");
@@ -75,14 +77,14 @@ public class PersonsHandler_CreateTests
             null, null, null, null, null, null, createdAt, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(role);
 
         _repoMock
             .Setup(r => r.CreateAsync(boardId, request, null, null, _connectionMock.Object, _transactionMock.Object))
             .ReturnsAsync(row);
 
-        var result = await _handler.CreateAsync(boardId, request, "user-1");
+        var result = await _handler.CreateAsync(boardId, request, UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.Id.Should().Be(personId);
@@ -102,7 +104,7 @@ public class PersonsHandler_CreateTests
         var request = new CreatePersonRequest("Anna", "Müller", null, null, null, null, birthDateInput, null, null, null, null, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
         _fuzzyDateRepoMock
@@ -115,7 +117,7 @@ public class PersonsHandler_CreateTests
                 new PersonRow(personId, bId, "Anna", "Müller", null, null, null,
                     null, null, null, null, null, null, createdAt, birthDateId, null));
 
-        var result = await _handler.CreateAsync(boardId, request, "user-1");
+        var result = await _handler.CreateAsync(boardId, request, UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.BirthDate.Should().NotBeNull();

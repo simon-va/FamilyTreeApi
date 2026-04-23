@@ -4,9 +4,9 @@ namespace FamilyTreeApiV2.Features.Boards;
 
 public interface IBoardsRepository
 {
-    Task<BoardRow> CreateBoardAsync(string name, string userId);
-    Task<IEnumerable<BoardRow>> GetBoardsByUserIdAsync(string userId);
-    Task<BoardRole?> GetUserRoleOnBoardAsync(Guid boardId, string userId);
+    Task<BoardRow> CreateBoardAsync(string name, Guid userId);
+    Task<IEnumerable<BoardRow>> GetBoardsByUserIdAsync(Guid userId);
+    Task<BoardRole?> GetUserRoleOnBoardAsync(Guid boardId, Guid userId);
     Task SoftDeleteBoardAsync(Guid boardId);
 }
 

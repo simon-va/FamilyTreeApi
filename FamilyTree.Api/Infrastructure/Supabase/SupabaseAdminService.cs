@@ -5,7 +5,7 @@ namespace FamilyTreeApiV2.Infrastructure.Supabase;
 public class SupabaseAdminService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     : ISupabaseAdminService
 {
-    public async Task<bool> DeleteUserAsync(string userId)
+    public async Task<bool> DeleteUserAsync(Guid userId)
     {
         var supabaseUrl = configuration["Supabase:Url"];
         var apiKey = configuration["Supabase:ApiKeySecret"];

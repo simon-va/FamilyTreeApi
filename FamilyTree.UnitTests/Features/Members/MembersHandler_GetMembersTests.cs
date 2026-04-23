@@ -10,6 +10,8 @@ public class MembersHandler_GetMembersTests
     // Rules:
     // - Caller must be a member of the board (role is null → BoardNotFound)
 
+    private static readonly Guid CallerId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IMembersRepository> _repoMock = new();
     private readonly MembersHandler _handler;
 
@@ -24,10 +26,10 @@ public class MembersHandler_GetMembersTests
         var boardId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.GetMembersAsync(boardId, "user-1");
+        var result = await _handler.GetMembersAsync(boardId, CallerId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Members.BoardNotFound");
@@ -47,14 +49,14 @@ public class MembersHandler_GetMembersTests
         };
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
             .Setup(r => r.GetMembersAsync(boardId))
             .ReturnsAsync(rows);
 
-        var result = await _handler.GetMembersAsync(boardId, "user-1");
+        var result = await _handler.GetMembersAsync(boardId, CallerId);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().HaveCount(1);

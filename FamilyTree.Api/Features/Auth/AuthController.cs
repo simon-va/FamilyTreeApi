@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using FamilyTreeApiV2.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -46,7 +45,7 @@ public class AuthController(
     [Authorize]
     public async Task<IActionResult> DeleteAccount()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.GetUserId();
         var result = await handler.DeleteAccountAsync(userId);
 
         return result.IsError

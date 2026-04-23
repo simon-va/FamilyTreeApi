@@ -15,6 +15,8 @@ public class PersonsHandler_UpdateTests
     // - Only Owner and Editor may update (Viewer → Forbidden)
     // - Person must exist (null from GetByIdAsync → PersonNotFound)
 
+    private static readonly Guid UserId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IPersonsRepository> _repoMock = new();
     private readonly Mock<IFuzzyDateRepository> _fuzzyDateRepoMock = new();
     private readonly Mock<IDbConnectionFactory> _connectionFactoryMock = new();
@@ -38,10 +40,10 @@ public class PersonsHandler_UpdateTests
         var request = new UpdatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.UpdateAsync(boardId, personId, request, "user-1");
+        var result = await _handler.UpdateAsync(boardId, personId, request, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.BoardNotFound");
@@ -55,10 +57,10 @@ public class PersonsHandler_UpdateTests
         var request = new UpdatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Viewer);
 
-        var result = await _handler.UpdateAsync(boardId, personId, request, "user-1");
+        var result = await _handler.UpdateAsync(boardId, personId, request, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.Forbidden");
@@ -72,14 +74,14 @@ public class PersonsHandler_UpdateTests
         var request = new UpdatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Editor);
 
         _repoMock
             .Setup(r => r.GetByIdAsync(boardId, personId))
             .ReturnsAsync((PersonRow?)null);
 
-        var result = await _handler.UpdateAsync(boardId, personId, request, "user-1");
+        var result = await _handler.UpdateAsync(boardId, personId, request, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Persons.PersonNotFound");
@@ -100,7 +102,7 @@ public class PersonsHandler_UpdateTests
             null, null, null, null, null, "Notiz", createdAt, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
@@ -111,7 +113,7 @@ public class PersonsHandler_UpdateTests
             .Setup(r => r.UpdateAsync(boardId, personId, request, null, null, _connectionMock.Object, _transactionMock.Object))
             .ReturnsAsync(updated);
 
-        var result = await _handler.UpdateAsync(boardId, personId, request, "user-1");
+        var result = await _handler.UpdateAsync(boardId, personId, request, UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.Id.Should().Be(personId);
@@ -134,7 +136,7 @@ public class PersonsHandler_UpdateTests
             null, null, null, null, null, null, createdAt, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
@@ -151,7 +153,7 @@ public class PersonsHandler_UpdateTests
                 new PersonRow(pId, bId, "Anna", "Müller", null, null, null,
                     null, null, null, null, null, null, createdAt, birthDateId, null));
 
-        var result = await _handler.UpdateAsync(boardId, personId, request, "user-1");
+        var result = await _handler.UpdateAsync(boardId, personId, request, UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.BirthDate.Should().NotBeNull();
@@ -174,7 +176,7 @@ public class PersonsHandler_UpdateTests
             null, null, null, null, null, null, createdAt, null, null);
 
         _repoMock
-            .Setup(r => r.GetCallerRoleAsync(boardId, "user-1"))
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
@@ -189,7 +191,7 @@ public class PersonsHandler_UpdateTests
             .Setup(r => r.UpdateAsync(boardId, personId, request, null, null, _connectionMock.Object, _transactionMock.Object))
             .ReturnsAsync(updated);
 
-        var result = await _handler.UpdateAsync(boardId, personId, request, "user-1");
+        var result = await _handler.UpdateAsync(boardId, personId, request, UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.BirthDate.Should().BeNull();

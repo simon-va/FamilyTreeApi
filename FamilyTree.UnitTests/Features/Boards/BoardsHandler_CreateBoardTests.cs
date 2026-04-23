@@ -10,6 +10,8 @@ public class BoardsHandler_CreateBoardTests
     // Rules:
     // - No business rules; CreateBoardAsync delegates entirely to the repository and maps the result.
 
+    private static readonly Guid UserId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IBoardsRepository> _repoMock = new();
     private readonly BoardsHandler _handler;
 
@@ -26,10 +28,10 @@ public class BoardsHandler_CreateBoardTests
         var row = new BoardRow(boardId, "My Family Tree", BoardRole.Owner, createdAt);
 
         _repoMock
-            .Setup(r => r.CreateBoardAsync("My Family Tree", "user-1"))
+            .Setup(r => r.CreateBoardAsync("My Family Tree", UserId))
             .ReturnsAsync(row);
 
-        var result = await _handler.CreateBoardAsync(new CreateBoardRequest("My Family Tree"), "user-1");
+        var result = await _handler.CreateBoardAsync(new CreateBoardRequest("My Family Tree"), UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.Id.Should().Be(boardId);

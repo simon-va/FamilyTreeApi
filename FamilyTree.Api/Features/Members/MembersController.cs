@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using FamilyTreeApiV2.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +17,7 @@ public class MembersController(
     [HttpGet]
     public async Task<IActionResult> GetMembers(Guid boardId)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.GetUserId();
         var result = await handler.GetMembersAsync(boardId, userId);
 
         return result.IsError
@@ -33,7 +32,7 @@ public class MembersController(
         if (!validation.IsValid)
             return BadRequest(new ValidationProblemDetails(validation.ToDictionary()));
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.GetUserId();
         var result = await handler.AddMemberAsync(boardId, request, userId);
 
         return result.IsError
@@ -51,7 +50,7 @@ public class MembersController(
         if (!validation.IsValid)
             return BadRequest(new ValidationProblemDetails(validation.ToDictionary()));
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.GetUserId();
         var result = await handler.UpdateMemberRoleAsync(boardId, memberId, request, userId);
 
         return result.IsError
@@ -62,7 +61,7 @@ public class MembersController(
     [HttpDelete("{memberId:guid}")]
     public async Task<IActionResult> RemoveMember(Guid boardId, Guid memberId)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.GetUserId();
         var result = await handler.RemoveMemberAsync(boardId, memberId, userId);
 
         return result.IsError

@@ -2,8 +2,8 @@ namespace FamilyTreeApiV2.Features.Auth;
 
 public interface IAuthRepository
 {
-    Task InsertUserAsync(string userId, string firstName, string lastName, string email);
-    Task<(string FirstName, string LastName)?> GetUserNamesAsync(string userId);
-    Task<bool> IsLastOwnerOfAnyBoardAsync(string userId);
-    Task DeleteUserAsync(string userId);
+    Task InsertUserAsync(Guid userId, string firstName, string lastName, string email);
+    Task<(string FirstName, string LastName)?> GetUserNamesAsync(Guid userId);
+    Task<bool> IsLastOwnerOfAnyBoardAsync(Guid userId);
+    Task DeleteUserAsync(Guid userId);
 }

@@ -12,6 +12,8 @@ public class BoardsHandler_DeleteBoardTests
     // - Board must exist and caller must be a member (role is null → NotFound)
     // - Only the board owner can delete it (role != Owner → Forbidden)
 
+    private static readonly Guid UserId = new Guid("00000000-0000-0000-0000-000000000001");
+
     private readonly Mock<IBoardsRepository> _repoMock = new();
     private readonly BoardsHandler _handler;
 
@@ -26,10 +28,10 @@ public class BoardsHandler_DeleteBoardTests
         var boardId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, "user-1"))
+            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
-        var result = await _handler.DeleteBoardAsync(boardId, "user-1");
+        var result = await _handler.DeleteBoardAsync(boardId, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Boards.NotFound");
@@ -41,10 +43,10 @@ public class BoardsHandler_DeleteBoardTests
         var boardId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, "user-1"))
+            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Editor);
 
-        var result = await _handler.DeleteBoardAsync(boardId, "user-1");
+        var result = await _handler.DeleteBoardAsync(boardId, UserId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Boards.Forbidden");
@@ -56,14 +58,14 @@ public class BoardsHandler_DeleteBoardTests
         var boardId = Guid.NewGuid();
 
         _repoMock
-            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, "user-1"))
+            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock
             .Setup(r => r.SoftDeleteBoardAsync(boardId))
             .Returns(Task.CompletedTask);
 
-        var result = await _handler.DeleteBoardAsync(boardId, "user-1");
+        var result = await _handler.DeleteBoardAsync(boardId, UserId);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(Result.Deleted);
