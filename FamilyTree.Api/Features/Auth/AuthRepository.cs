@@ -5,29 +5,28 @@ namespace FamilyTreeApiV2.Features.Auth;
 
 public class AuthRepository(IDbConnectionFactory dbConnectionFactory) : IAuthRepository
 {
-    public async Task InsertUserAsync(Guid userId, string firstName, string lastName, string email)
+    public async Task<User> InsertUserAsync(Guid userId, string firstName, string lastName, string email)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
         const string sql = @"
             INSERT INTO public.users (id, first_name, last_name, email)
-            VALUES (@UserId, @FirstName, @LastName, lower(@Email))";
+            VALUES (@UserId, @FirstName, @LastName, lower(@Email))
+            RETURNING id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email";
 
-        await connection.ExecuteAsync(sql, new { UserId = userId, FirstName = firstName, LastName = lastName, Email = email });
+        return await connection.QuerySingleAsync<User>(sql, new { UserId = userId, FirstName = firstName, LastName = lastName, Email = email });
     }
 
-    public async Task<(string FirstName, string LastName)?> GetUserNamesAsync(Guid userId)
+    public async Task<User?> GetUserAsync(Guid userId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
         const string sql = @"
-            SELECT first_name AS FirstName, last_name AS LastName
+            SELECT id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email
             FROM public.users
             WHERE id = @UserId";
-        
-        var userNames = await connection.QuerySingleOrDefaultAsync<UserNameRow>(sql, new { UserId = userId });
 
-        return userNames is null ? null : (userNames.FirstName, userNames.LastName);
+        return await connection.QuerySingleOrDefaultAsync<User>(sql, new { UserId = userId });
     }
 
     public async Task<bool> IsLastOwnerOfAnyBoardAsync(Guid userId)
@@ -58,6 +57,4 @@ public class AuthRepository(IDbConnectionFactory dbConnectionFactory) : IAuthRep
 
         await connection.ExecuteAsync(sql, new { UserId = userId });
     }
-
-    private record UserNameRow(string FirstName, string LastName);
 }

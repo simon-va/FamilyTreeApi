@@ -22,7 +22,7 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
         return roleString is null ? null : Enum.Parse<BoardRole>(roleString, ignoreCase: true);
     }
 
-    public async Task<IEnumerable<(PersonRow Person, FuzzyDate? BirthDate, FuzzyDate? DeathDate)>> GetAllAsync(Guid boardId)
+    public async Task<IEnumerable<(Person Person, FuzzyDate? BirthDate, FuzzyDate? DeathDate)>> GetAllAsync(Guid boardId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -66,7 +66,7 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
             WHERE p.board_id = @BoardId
             ORDER BY p.last_name, p.first_name";
 
-        return await connection.QueryAsync<PersonRow, FuzzyDate, FuzzyDate, (PersonRow, FuzzyDate?, FuzzyDate?)>(
+        return await connection.QueryAsync<Person, FuzzyDate, FuzzyDate, (Person, FuzzyDate?, FuzzyDate?)>(
             sql,
             (person, birthDate, deathDate) => (
                 person,
@@ -76,7 +76,7 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
             splitOn: "Id,Id");
     }
 
-    public async Task<PersonRow?> GetByIdAsync(Guid boardId, Guid personId)
+    public async Task<Person?> GetByIdAsync(Guid boardId, Guid personId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -102,11 +102,11 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
             WHERE id       = @PersonId
               AND board_id = @BoardId";
 
-        return await connection.QuerySingleOrDefaultAsync<PersonRow>(sql,
+        return await connection.QuerySingleOrDefaultAsync<Person>(sql,
             new { PersonId = personId, BoardId = boardId });
     }
 
-    public async Task<PersonRow> CreateAsync(
+    public async Task<Person> CreateAsync(
         Guid boardId,
         CreatePersonRequest request,
         Guid? birthDateId,
@@ -141,7 +141,7 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
                 birth_date_id   AS BirthDateId,
                 death_date_id   AS DeathDateId";
 
-        return await connection.QuerySingleAsync<PersonRow>(sql, new
+        return await connection.QuerySingleAsync<Person>(sql, new
         {
             BoardId = boardId,
             request.FirstName,
@@ -160,7 +160,7 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
         }, transaction);
     }
 
-    public async Task<PersonRow?> UpdateAsync(
+    public async Task<Person?> UpdateAsync(
         Guid boardId,
         Guid personId,
         UpdatePersonRequest request,
@@ -205,7 +205,7 @@ public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPers
                 birth_date_id   AS BirthDateId,
                 death_date_id   AS DeathDateId";
 
-        return await connection.QuerySingleOrDefaultAsync<PersonRow>(sql, new
+        return await connection.QuerySingleOrDefaultAsync<Person>(sql, new
         {
             PersonId = personId,
             BoardId = boardId,

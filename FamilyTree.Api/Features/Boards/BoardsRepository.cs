@@ -6,7 +6,7 @@ namespace FamilyTreeApiV2.Features.Boards;
 
 public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoardsRepository
 {
-    public async Task<BoardRow> CreateBoardAsync(string name, Guid userId)
+    public async Task<Board> CreateBoardAsync(string name, Guid userId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
         using var transaction = connection.BeginTransaction();
@@ -26,10 +26,10 @@ public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoard
 
         transaction.Commit();
 
-        return new BoardRow(board.Id, board.Name, BoardRole.Owner, board.CreatedAt);
+        return new Board(board.Id, board.Name, BoardRole.Owner, board.CreatedAt);
     }
 
-    public async Task<IEnumerable<BoardRow>> GetBoardsByUserIdAsync(Guid userId)
+    public async Task<IEnumerable<Board>> GetBoardsByUserIdAsync(Guid userId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -39,7 +39,7 @@ public class BoardsRepository(IDbConnectionFactory dbConnectionFactory) : IBoard
             JOIN public.board_members bm ON bm.board_id = b.id
             WHERE bm.user_id = @UserId";
 
-        return await connection.QueryAsync<BoardRow>(sql, new { UserId = userId });
+        return await connection.QueryAsync<Board>(sql, new { UserId = userId });
     }
 
     public async Task<BoardRole?> GetUserRoleOnBoardAsync(Guid boardId, Guid userId)

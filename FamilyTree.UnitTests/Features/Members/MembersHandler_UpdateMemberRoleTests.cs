@@ -68,7 +68,7 @@ public class MembersHandler_UpdateMemberRoleTests
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
-            .ReturnsAsync((MemberRow?)null);
+            .ReturnsAsync((Member?)null);
 
         var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), CallerId);
 
@@ -86,7 +86,7 @@ public class MembersHandler_UpdateMemberRoleTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new MemberRow(memberId, CallerId, "Self", "User", "self@example.com", BoardRole.Owner, DateTime.UtcNow);
+        var targetMember = new Member(memberId, CallerId, "Self", "User", "self@example.com", BoardRole.Owner, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
@@ -109,7 +109,7 @@ public class MembersHandler_UpdateMemberRoleTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new MemberRow(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, DateTime.UtcNow);
+        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
@@ -117,7 +117,7 @@ public class MembersHandler_UpdateMemberRoleTests
 
         _repoMock
             .Setup(r => r.UpdateMemberRoleAsync(boardId, memberId, BoardRole.Viewer))
-            .ReturnsAsync((MemberRow?)null);
+            .ReturnsAsync((Member?)null);
 
         var result = await _handler.UpdateMemberRoleAsync(boardId, memberId, new UpdateMemberRoleRequest(BoardRole.Viewer), CallerId);
 
@@ -137,13 +137,13 @@ public class MembersHandler_UpdateMemberRoleTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new MemberRow(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, createdAt);
+        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, createdAt);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
             .ReturnsAsync(targetMember);
 
-        var updatedRow = new MemberRow(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Viewer, createdAt);
+        var updatedRow = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Viewer, createdAt);
 
         _repoMock
             .Setup(r => r.UpdateMemberRoleAsync(boardId, memberId, BoardRole.Viewer))

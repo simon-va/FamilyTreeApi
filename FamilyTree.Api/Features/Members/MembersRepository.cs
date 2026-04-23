@@ -20,7 +20,7 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
         return roleString is null ? null : Enum.Parse<BoardRole>(roleString, ignoreCase: true);
     }
 
-    public async Task<IEnumerable<MemberRow>> GetMembersAsync(Guid boardId)
+    public async Task<IEnumerable<Member>> GetMembersAsync(Guid boardId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -38,10 +38,10 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
             WHERE bm.board_id = @BoardId
             ORDER BY bm.created_at";
 
-        return await connection.QueryAsync<MemberRow>(sql, new { BoardId = boardId });
+        return await connection.QueryAsync<Member>(sql, new { BoardId = boardId });
     }
 
-    public async Task<MemberRow?> GetMemberByIdAsync(Guid boardId, Guid memberId)
+    public async Task<Member?> GetMemberByIdAsync(Guid boardId, Guid memberId)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -59,7 +59,7 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
             WHERE bm.board_id = @BoardId
               AND bm.id       = @MemberId";
 
-        return await connection.QuerySingleOrDefaultAsync<MemberRow>(sql,
+        return await connection.QuerySingleOrDefaultAsync<Member>(sql,
             new { BoardId = boardId, MemberId = memberId });
     }
 
@@ -90,7 +90,7 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
         return await connection.ExecuteScalarAsync<bool>(sql, new { BoardId = boardId, UserId = userId });
     }
 
-    public async Task<MemberRow> AddMemberAsync(Guid boardId, Guid userId, BoardRole role)
+    public async Task<Member> AddMemberAsync(Guid boardId, Guid userId, BoardRole role)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 
@@ -105,7 +105,7 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
         return (await GetMemberByIdAsync(boardId, newId))!;
     }
 
-    public async Task<MemberRow?> UpdateMemberRoleAsync(Guid boardId, Guid memberId, BoardRole role)
+    public async Task<Member?> UpdateMemberRoleAsync(Guid boardId, Guid memberId, BoardRole role)
     {
         using var connection = dbConnectionFactory.CreateConnection();
 

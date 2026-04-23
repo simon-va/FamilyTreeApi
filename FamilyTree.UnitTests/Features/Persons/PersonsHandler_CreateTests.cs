@@ -73,7 +73,7 @@ public class PersonsHandler_CreateTests
         var createdAt = DateTime.UtcNow;
         var request = new CreatePersonRequest("Anna", "Müller", null, null, Gender.Female, null, null, null, null, null, null, null, null);
 
-        var row = new PersonRow(personId, boardId, "Anna", "Müller", null, null, Gender.Female,
+        var row = new Person(personId, boardId, "Anna", "Müller", null, null, Gender.Female,
             null, null, null, null, null, null, createdAt, null, null);
 
         _repoMock
@@ -100,7 +100,7 @@ public class PersonsHandler_CreateTests
         var boardId = Guid.NewGuid();
         var personId = Guid.NewGuid();
         var createdAt = DateTime.UtcNow;
-        var birthDateInput = new FuzzyDateInputDto(FuzzyDatePrecision.Year, new DateOnly(1850, 1, 1), null, null, null, null);
+        var birthDateInput = new FuzzyDateRequest(FuzzyDatePrecision.Year, new DateOnly(1850, 1, 1), null, null, null, null);
         var request = new CreatePersonRequest("Anna", "Müller", null, null, null, null, birthDateInput, null, null, null, null, null, null);
 
         _repoMock
@@ -114,7 +114,7 @@ public class PersonsHandler_CreateTests
         _repoMock
             .Setup(r => r.CreateAsync(boardId, request, It.IsAny<Guid?>(), null, _connectionMock.Object, _transactionMock.Object))
             .ReturnsAsync((Guid bId, CreatePersonRequest req, Guid? birthDateId, Guid? deathDateId, IDbConnection c, IDbTransaction t) =>
-                new PersonRow(personId, bId, "Anna", "Müller", null, null, null,
+                new Person(personId, bId, "Anna", "Müller", null, null, null,
                     null, null, null, null, null, null, createdAt, birthDateId, null));
 
         var result = await _handler.CreateAsync(boardId, request, UserId);

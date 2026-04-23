@@ -17,7 +17,7 @@ public class PersonsHandler(
             return PersonsErrors.BoardNotFound;
 
         var persons = await repository.GetAllAsync(boardId);
-        return persons.Select(p => ToResponse(p.Person, p.BirthDate, p.DeathDate)).ToList();
+        return persons.Select(p => ToPersonResponse(p.Person, p.BirthDate, p.DeathDate)).ToList();
     }
 
     public async Task<ErrorOr<PersonResponse>> CreateAsync(Guid boardId, CreatePersonRequest request, Guid userId)
@@ -45,7 +45,7 @@ public class PersonsHandler(
 
         transaction.Commit();
 
-        return ToResponse(person, birthResult.Value, deathResult.Value);
+        return ToPersonResponse(person, birthResult.Value, deathResult.Value);
     }
 
     public async Task<ErrorOr<PersonResponse>> UpdateAsync(
@@ -80,7 +80,7 @@ public class PersonsHandler(
 
         transaction.Commit();
 
-        return ToResponse(person, birthResult.Value, deathResult.Value);
+        return ToPersonResponse(person, birthResult.Value, deathResult.Value);
     }
 
     public async Task<ErrorOr<Deleted>> DeleteAsync(Guid boardId, Guid personId, Guid userId)
@@ -98,7 +98,7 @@ public class PersonsHandler(
         return Result.Deleted;
     }
 
-    private static PersonResponse ToResponse(PersonRow person, FuzzyDate? birthDate, FuzzyDate? deathDate) =>
+    private static PersonResponse ToPersonResponse(Person person, FuzzyDate? birthDate, FuzzyDate? deathDate) =>
         new(person.Id, person.BoardId, person.FirstName, person.LastName, person.MiddleNames,
             person.BirthName, person.Gender, person.BirthPlace, ToFuzzyDateResponse(birthDate),
             person.DeathPlace, ToFuzzyDateResponse(deathDate), person.BurialPlace,

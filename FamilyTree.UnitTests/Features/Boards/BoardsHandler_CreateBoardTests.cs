@@ -25,7 +25,7 @@ public class BoardsHandler_CreateBoardTests
     {
         var boardId = Guid.NewGuid();
         var createdAt = DateTime.UtcNow;
-        var row = new BoardRow(boardId, "My Family Tree", BoardRole.Owner, createdAt);
+        var row = new Board(boardId, "My Family Tree", BoardRole.Owner, createdAt);
 
         _repoMock
             .Setup(r => r.CreateBoardAsync("My Family Tree", UserId))

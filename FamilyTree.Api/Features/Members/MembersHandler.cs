@@ -78,6 +78,6 @@ public class MembersHandler(IMembersRepository repository)
         return Result.Deleted;
     }
 
-    private static MemberResponse ToResponse(MemberRow member) =>
+    private static MemberResponse ToResponse(Member member) =>
         new(member.MemberId, member.UserId, member.FirstName, member.LastName, member.Email, member.Role, member.CreatedAt);
 }

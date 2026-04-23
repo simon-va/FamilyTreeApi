@@ -50,7 +50,7 @@ public class PersonsHandler_GetAllTests
         var personId = Guid.NewGuid();
         var createdAt = DateTime.UtcNow;
 
-        var row = new PersonRow(personId, boardId, "Anna", "Müller", null, null, null,
+        var row = new Person(personId, boardId, "Anna", "Müller", null, null, null,
             null, null, null, null, null, null, createdAt, null, null);
 
         _repoMock
@@ -80,16 +80,10 @@ public class PersonsHandler_GetAllTests
         var dateId = Guid.NewGuid();
         var createdAt = DateTime.UtcNow;
 
-        var row = new PersonRow(personId, boardId, "Anna", "Müller", null, null, null,
+        var row = new Person(personId, boardId, "Anna", "Müller", null, null, null,
             null, null, null, null, null, null, createdAt, dateId, null);
 
-        var birthDate = new FuzzyDate
-        {
-            Id = dateId,
-            Precision = FuzzyDatePrecision.Year,
-            Date = new DateOnly(1850, 1, 1),
-            CreatedAt = createdAt
-        };
+        var birthDate = new FuzzyDate(dateId, FuzzyDatePrecision.Year, new DateOnly(1850, 1, 1), null, null, null, null, createdAt);
 
         _repoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))

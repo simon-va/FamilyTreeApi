@@ -45,7 +45,7 @@ public class MembersHandler_GetMembersTests
 
         var rows = new[]
         {
-            new MemberRow(memberId, userId, "Anna", "Müller", "anna@example.com", BoardRole.Editor, createdAt)
+            new Member(memberId, userId, "Anna", "Müller", "anna@example.com", BoardRole.Editor, createdAt)
         };
 
         _repoMock

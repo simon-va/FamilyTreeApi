@@ -121,7 +121,7 @@ public class MembersHandler_AddMemberTests
             .Setup(r => r.IsMemberAsync(boardId, targetUserId))
             .ReturnsAsync(false);
 
-        var row = new MemberRow(memberId, targetUserId, "New", "User", "new@example.com", BoardRole.Editor, createdAt);
+        var row = new Member(memberId, targetUserId, "New", "User", "new@example.com", BoardRole.Editor, createdAt);
 
         _repoMock
             .Setup(r => r.AddMemberAsync(boardId, targetUserId, BoardRole.Editor))

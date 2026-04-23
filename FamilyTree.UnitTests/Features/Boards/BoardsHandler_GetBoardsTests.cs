@@ -25,8 +25,8 @@ public class BoardsHandler_GetBoardsTests
     {
         var rows = new[]
         {
-            new BoardRow(Guid.NewGuid(), "Board A", BoardRole.Owner, DateTime.UtcNow),
-            new BoardRow(Guid.NewGuid(), "Board B", BoardRole.Editor, DateTime.UtcNow)
+            new Board(Guid.NewGuid(), "Board A", BoardRole.Owner, DateTime.UtcNow),
+            new Board(Guid.NewGuid(), "Board B", BoardRole.Editor, DateTime.UtcNow)
         };
 
         _repoMock

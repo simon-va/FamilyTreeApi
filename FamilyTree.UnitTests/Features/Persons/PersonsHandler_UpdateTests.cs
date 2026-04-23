@@ -79,7 +79,7 @@ public class PersonsHandler_UpdateTests
 
         _repoMock
             .Setup(r => r.GetByIdAsync(boardId, personId))
-            .ReturnsAsync((PersonRow?)null);
+            .ReturnsAsync((Person?)null);
 
         var result = await _handler.UpdateAsync(boardId, personId, request, UserId);
 
@@ -95,10 +95,10 @@ public class PersonsHandler_UpdateTests
         var createdAt = DateTime.UtcNow;
         var request = new UpdatePersonRequest("Anna", "Schmidt", null, "Müller", Gender.Female, null, null, null, null, null, null, null, "Notiz");
 
-        var existing = new PersonRow(personId, boardId, "Anna", "Müller", null, null, Gender.Female,
+        var existing = new Person(personId, boardId, "Anna", "Müller", null, null, Gender.Female,
             null, null, null, null, null, null, createdAt, null, null);
 
-        var updated = new PersonRow(personId, boardId, "Anna", "Schmidt", null, "Müller", Gender.Female,
+        var updated = new Person(personId, boardId, "Anna", "Schmidt", null, "Müller", Gender.Female,
             null, null, null, null, null, "Notiz", createdAt, null, null);
 
         _repoMock
@@ -129,10 +129,10 @@ public class PersonsHandler_UpdateTests
         var boardId = Guid.NewGuid();
         var personId = Guid.NewGuid();
         var createdAt = DateTime.UtcNow;
-        var birthDateInput = new FuzzyDateInputDto(FuzzyDatePrecision.Year, new DateOnly(1850, 1, 1), null, null, null, null);
+        var birthDateInput = new FuzzyDateRequest(FuzzyDatePrecision.Year, new DateOnly(1850, 1, 1), null, null, null, null);
         var request = new UpdatePersonRequest("Anna", "Müller", null, null, null, null, birthDateInput, null, null, null, null, null, null);
 
-        var existing = new PersonRow(personId, boardId, "Anna", "Müller", null, null, null,
+        var existing = new Person(personId, boardId, "Anna", "Müller", null, null, null,
             null, null, null, null, null, null, createdAt, null, null);
 
         _repoMock
@@ -150,7 +150,7 @@ public class PersonsHandler_UpdateTests
         _repoMock
             .Setup(r => r.UpdateAsync(boardId, personId, request, It.IsAny<Guid?>(), null, _connectionMock.Object, _transactionMock.Object))
             .ReturnsAsync((Guid bId, Guid pId, UpdatePersonRequest req, Guid? birthDateId, Guid? deathDateId, IDbConnection c, IDbTransaction t) =>
-                new PersonRow(pId, bId, "Anna", "Müller", null, null, null,
+                new Person(pId, bId, "Anna", "Müller", null, null, null,
                     null, null, null, null, null, null, createdAt, birthDateId, null));
 
         var result = await _handler.UpdateAsync(boardId, personId, request, UserId);
@@ -169,10 +169,10 @@ public class PersonsHandler_UpdateTests
         var createdAt = DateTime.UtcNow;
         var request = new UpdatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
-        var existing = new PersonRow(personId, boardId, "Anna", "Müller", null, null, null,
+        var existing = new Person(personId, boardId, "Anna", "Müller", null, null, null,
             null, null, null, null, null, null, createdAt, existingDateId, null);
 
-        var updated = new PersonRow(personId, boardId, "Anna", "Müller", null, null, null,
+        var updated = new Person(personId, boardId, "Anna", "Müller", null, null, null,
             null, null, null, null, null, null, createdAt, null, null);
 
         _repoMock

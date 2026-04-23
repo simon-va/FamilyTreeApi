@@ -4,9 +4,9 @@ using FamilyTreeApiV2.Shared.FuzzyDates;
 
 namespace FamilyTreeApiV2.Features.Persons;
 
-public class FuzzyDateInputDtoValidator : AbstractValidator<FuzzyDateInputDto>
+public class FuzzyDateRequestValidator : AbstractValidator<FuzzyDateRequest>
 {
-    public FuzzyDateInputDtoValidator()
+    public FuzzyDateRequestValidator()
     {
         RuleFor(x => x.DateTo)
             .NotNull()
@@ -61,7 +61,7 @@ public class CreatePersonRequestValidator : AbstractValidator<CreatePersonReques
             .When(x => x.BirthPlace is not null);
 
         RuleFor(x => x.BirthDate)
-            .SetValidator(new FuzzyDateInputDtoValidator()!)
+            .SetValidator(new FuzzyDateRequestValidator()!)
             .When(x => x.BirthDate is not null);
 
         RuleFor(x => x.DeathPlace)
@@ -69,7 +69,7 @@ public class CreatePersonRequestValidator : AbstractValidator<CreatePersonReques
             .When(x => x.DeathPlace is not null);
 
         RuleFor(x => x.DeathDate)
-            .SetValidator(new FuzzyDateInputDtoValidator()!)
+            .SetValidator(new FuzzyDateRequestValidator()!)
             .When(x => x.DeathDate is not null);
 
         RuleFor(x => x.BurialPlace)
@@ -115,7 +115,7 @@ public class UpdatePersonRequestValidator : AbstractValidator<UpdatePersonReques
             .When(x => x.BirthPlace is not null);
 
         RuleFor(x => x.BirthDate)
-            .SetValidator(new FuzzyDateInputDtoValidator()!)
+            .SetValidator(new FuzzyDateRequestValidator()!)
             .When(x => x.BirthDate is not null);
 
         RuleFor(x => x.DeathPlace)
@@ -123,7 +123,7 @@ public class UpdatePersonRequestValidator : AbstractValidator<UpdatePersonReques
             .When(x => x.DeathPlace is not null);
 
         RuleFor(x => x.DeathDate)
-            .SetValidator(new FuzzyDateInputDtoValidator()!)
+            .SetValidator(new FuzzyDateRequestValidator()!)
             .When(x => x.DeathDate is not null);
 
         RuleFor(x => x.BurialPlace)

@@ -28,20 +28,17 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
 
         var userId = Guid.Parse(session.User.Id!);
 
+        User user;
         try
         {
-            await authRepository.InsertUserAsync(userId, request.FirstName, request.LastName, request.Email);
+            user = await authRepository.InsertUserAsync(userId, request.FirstName, request.LastName, request.Email);
         }
         catch (Exception ex)
         {
             return AuthErrors.ProfileWriteFailed(ex.Message);
         }
 
-        return new AuthResponse(
-            session.AccessToken,
-            session.RefreshToken,
-            new UserDto(userId, session.User.Email!, request.FirstName, request.LastName)
-        );
+        return new AuthResponse(session.AccessToken, session.RefreshToken, user);
     }
 
     public async Task<ErrorOr<AuthResponse>> LoginAsync(LoginRequest request)
@@ -57,20 +54,16 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
             return AuthErrors.InvalidCredentials;
         }
 
-        if (session?.User is null || session.AccessToken is null  || session.RefreshToken is null)
+        if (session?.User is null || session.AccessToken is null || session.RefreshToken is null)
             return AuthErrors.LoginFailed;
 
         var userId = Guid.Parse(session.User.Id!);
-        var names = await authRepository.GetUserNamesAsync(userId);
+        var user = await authRepository.GetUserAsync(userId);
 
-        if (names is null)
+        if (user is null)
             return AuthErrors.UserProfileNotFound;
 
-        return new AuthResponse(
-            session.AccessToken,
-            session.RefreshToken,
-            new UserDto(userId, session.User.Email!, names.Value.FirstName, names.Value.LastName)
-        );
+        return new AuthResponse(session.AccessToken, session.RefreshToken, user);
     }
 
     public async Task<ErrorOr<Deleted>> DeleteAccountAsync(Guid userId)
