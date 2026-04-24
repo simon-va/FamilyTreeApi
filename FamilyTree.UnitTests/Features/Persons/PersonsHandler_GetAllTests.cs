@@ -1,3 +1,4 @@
+using FamilyTreeApiV2.Features.Members;
 using FamilyTreeApiV2.Features.Persons;
 using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Shared;
@@ -18,11 +19,12 @@ public class PersonsHandler_GetAllTests
     private readonly Mock<IPersonsRepository> _repoMock = new();
     private readonly Mock<IFuzzyDateRepository> _fuzzyDateRepoMock = new();
     private readonly Mock<IDbConnectionFactory> _connectionFactoryMock = new();
+    private readonly Mock<IMembersRepository> _memberRepoMock = new();
     private readonly PersonsHandler _handler;
 
     public PersonsHandler_GetAllTests()
     {
-        _handler = new PersonsHandler(_repoMock.Object, _fuzzyDateRepoMock.Object, _connectionFactoryMock.Object);
+        _handler = new PersonsHandler(_repoMock.Object, _fuzzyDateRepoMock.Object, _connectionFactoryMock.Object, _memberRepoMock.Object);
     }
 
     [Fact]
@@ -30,7 +32,7 @@ public class PersonsHandler_GetAllTests
     {
         var boardId = Guid.NewGuid();
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
@@ -53,7 +55,7 @@ public class PersonsHandler_GetAllTests
         var row = new Person(personId, boardId, "Anna", "Müller", null, null, null,
             null, null, null, null, null, null, createdAt, null, null);
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(role);
 
@@ -85,7 +87,7 @@ public class PersonsHandler_GetAllTests
 
         var birthDate = new FuzzyDate(dateId, FuzzyDatePrecision.Year, new DateOnly(1850, 1, 1), null, null, null, null, createdAt);
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 

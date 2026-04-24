@@ -8,19 +8,6 @@ namespace FamilyTreeApiV2.Features.Persons;
 
 public class PersonsRepository(IDbConnectionFactory dbConnectionFactory) : IPersonsRepository
 {
-    public async Task<BoardRole?> GetCallerRoleAsync(Guid boardId, Guid userId)
-    {
-        using var connection = dbConnectionFactory.CreateConnection();
-
-        const string sql = @"
-            SELECT role
-            FROM public.board_members
-            WHERE board_id = @BoardId
-              AND user_id  = @UserId";
-
-        return await connection.QuerySingleOrDefaultAsync<BoardRole?>(sql, new { BoardId = boardId, UserId = userId });
-    }
-
     public async Task<IEnumerable<(Person Person, FuzzyDate? BirthDate, FuzzyDate? DeathDate)>> GetAllAsync(Guid boardId)
     {
         using var connection = dbConnectionFactory.CreateConnection();

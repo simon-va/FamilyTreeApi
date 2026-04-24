@@ -1,4 +1,5 @@
 using System.Data;
+using FamilyTreeApiV2.Features.Members;
 using FamilyTreeApiV2.Features.Persons;
 using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Shared;
@@ -22,6 +23,7 @@ public class PersonsHandler_UpdateTests
     private readonly Mock<IDbConnectionFactory> _connectionFactoryMock = new();
     private readonly Mock<IDbConnection> _connectionMock = new();
     private readonly Mock<IDbTransaction> _transactionMock = new();
+    private readonly Mock<IMembersRepository> _memberRepoMock = new();
     private readonly PersonsHandler _handler;
 
     public PersonsHandler_UpdateTests()
@@ -29,7 +31,7 @@ public class PersonsHandler_UpdateTests
         _connectionMock.Setup(c => c.BeginTransaction()).Returns(_transactionMock.Object);
         _connectionFactoryMock.Setup(f => f.CreateConnection()).Returns(_connectionMock.Object);
 
-        _handler = new PersonsHandler(_repoMock.Object, _fuzzyDateRepoMock.Object, _connectionFactoryMock.Object);
+        _handler = new PersonsHandler(_repoMock.Object, _fuzzyDateRepoMock.Object, _connectionFactoryMock.Object, _memberRepoMock.Object);
     }
 
     [Fact]
@@ -39,7 +41,7 @@ public class PersonsHandler_UpdateTests
         var personId = Guid.NewGuid();
         var request = new UpdatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
@@ -56,7 +58,7 @@ public class PersonsHandler_UpdateTests
         var personId = Guid.NewGuid();
         var request = new UpdatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Viewer);
 
@@ -73,7 +75,7 @@ public class PersonsHandler_UpdateTests
         var personId = Guid.NewGuid();
         var request = new UpdatePersonRequest("Anna", "Müller", null, null, null, null, null, null, null, null, null, null, null);
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Editor);
 
@@ -101,7 +103,7 @@ public class PersonsHandler_UpdateTests
         var updated = new Person(personId, boardId, "Anna", "Schmidt", null, "Müller", Gender.Female,
             null, null, null, null, null, "Notiz", createdAt, null, null);
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
@@ -135,7 +137,7 @@ public class PersonsHandler_UpdateTests
         var existing = new Person(personId, boardId, "Anna", "Müller", null, null, null,
             null, null, null, null, null, null, createdAt, null, null);
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
@@ -175,7 +177,7 @@ public class PersonsHandler_UpdateTests
         var updated = new Person(personId, boardId, "Anna", "Müller", null, null, null,
             null, null, null, null, null, null, createdAt, null, null);
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 

@@ -1,3 +1,4 @@
+using FamilyTreeApiV2.Features.Members;
 using FamilyTreeApiV2.Features.Persons;
 using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Shared;
@@ -19,11 +20,12 @@ public class PersonsHandler_DeleteTests
     private readonly Mock<IPersonsRepository> _repoMock = new();
     private readonly Mock<IFuzzyDateRepository> _fuzzyDateRepoMock = new();
     private readonly Mock<IDbConnectionFactory> _connectionFactoryMock = new();
+    private readonly Mock<IMembersRepository> _memberRepoMock = new();
     private readonly PersonsHandler _handler;
 
     public PersonsHandler_DeleteTests()
     {
-        _handler = new PersonsHandler(_repoMock.Object, _fuzzyDateRepoMock.Object, _connectionFactoryMock.Object);
+        _handler = new PersonsHandler(_repoMock.Object, _fuzzyDateRepoMock.Object, _connectionFactoryMock.Object, _memberRepoMock.Object);
     }
 
     [Fact]
@@ -32,7 +34,7 @@ public class PersonsHandler_DeleteTests
         var boardId = Guid.NewGuid();
         var personId = Guid.NewGuid();
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
@@ -48,7 +50,7 @@ public class PersonsHandler_DeleteTests
         var boardId = Guid.NewGuid();
         var personId = Guid.NewGuid();
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Viewer);
 
@@ -64,7 +66,7 @@ public class PersonsHandler_DeleteTests
         var boardId = Guid.NewGuid();
         var personId = Guid.NewGuid();
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Editor);
 
@@ -86,7 +88,7 @@ public class PersonsHandler_DeleteTests
         var boardId = Guid.NewGuid();
         var personId = Guid.NewGuid();
 
-        _repoMock
+        _memberRepoMock
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(role);
 

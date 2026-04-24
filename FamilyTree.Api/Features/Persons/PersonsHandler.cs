@@ -1,4 +1,5 @@
 using ErrorOr;
+using FamilyTreeApiV2.Features.Members;
 using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Shared;
 using FamilyTreeApiV2.Shared.FuzzyDates;
@@ -8,11 +9,12 @@ namespace FamilyTreeApiV2.Features.Persons;
 public class PersonsHandler(
     IPersonsRepository repository,
     IFuzzyDateRepository fuzzyDateRepository,
-    IDbConnectionFactory connectionFactory)
+    IDbConnectionFactory connectionFactory,
+    IMembersRepository membersRepository)
 {
     public async Task<ErrorOr<List<PersonResponse>>> GetAllAsync(Guid boardId, Guid userId)
     {
-        var role = await repository.GetCallerRoleAsync(boardId, userId);
+        var role = await membersRepository.GetCallerRoleAsync(boardId, userId);
         if (role is null)
             return PersonsErrors.BoardNotFound;
 
@@ -22,7 +24,7 @@ public class PersonsHandler(
 
     public async Task<ErrorOr<PersonResponse>> CreateAsync(Guid boardId, CreatePersonRequest request, Guid userId)
     {
-        var role = await repository.GetCallerRoleAsync(boardId, userId);
+        var role = await membersRepository.GetCallerRoleAsync(boardId, userId);
         if (role is null)
             return PersonsErrors.BoardNotFound;
         if (role is BoardRole.Viewer)
@@ -51,7 +53,7 @@ public class PersonsHandler(
     public async Task<ErrorOr<PersonResponse>> UpdateAsync(
         Guid boardId, Guid personId, UpdatePersonRequest request, Guid userId)
     {
-        var role = await repository.GetCallerRoleAsync(boardId, userId);
+        var role = await membersRepository.GetCallerRoleAsync(boardId, userId);
         if (role is null)
             return PersonsErrors.BoardNotFound;
         if (role is BoardRole.Viewer)
@@ -85,7 +87,7 @@ public class PersonsHandler(
 
     public async Task<ErrorOr<Deleted>> DeleteAsync(Guid boardId, Guid personId, Guid userId)
     {
-        var role = await repository.GetCallerRoleAsync(boardId, userId);
+        var role = await membersRepository.GetCallerRoleAsync(boardId, userId);
         if (role is null)
             return PersonsErrors.BoardNotFound;
         if (role is BoardRole.Viewer)
