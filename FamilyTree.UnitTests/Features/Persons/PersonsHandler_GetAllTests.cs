@@ -59,6 +59,11 @@ public class PersonsHandler_GetAllTests
             .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(role);
 
+        if (role == BoardRole.Viewer)
+            _memberRepoMock
+                .Setup(r => r.GetCallerPrivacyModeAsync(boardId, UserId))
+                .ReturnsAsync(ViewerPrivacyMode.Full);
+
         _repoMock
             .Setup(r => r.GetAllAsync(boardId))
             .ReturnsAsync(new[] { (row, (FuzzyDate?)null, (FuzzyDate?)null) });

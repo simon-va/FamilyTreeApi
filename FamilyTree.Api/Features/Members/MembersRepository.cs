@@ -26,13 +26,14 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
 
         const string sql = @"
             SELECT
-                bm.id         AS MemberId,
-                bm.user_id    AS UserId,
-                u.first_name  AS FirstName,
-                u.last_name   AS LastName,
-                u.email       AS Email,
-                bm.role       AS Role,
-                bm.created_at AS CreatedAt
+                bm.id                  AS MemberId,
+                bm.user_id             AS UserId,
+                u.first_name           AS FirstName,
+                u.last_name            AS LastName,
+                u.email                AS Email,
+                bm.role                AS Role,
+                bm.viewer_privacy_mode AS ViewerPrivacyMode,
+                bm.created_at          AS CreatedAt
             FROM public.board_members bm
             JOIN public.users u ON u.id = bm.user_id
             WHERE bm.board_id = @BoardId
@@ -47,13 +48,14 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
 
         const string sql = @"
             SELECT
-                bm.id         AS MemberId,
-                bm.user_id    AS UserId,
-                u.first_name  AS FirstName,
-                u.last_name   AS LastName,
-                u.email       AS Email,
-                bm.role       AS Role,
-                bm.created_at AS CreatedAt
+                bm.id                  AS MemberId,
+                bm.user_id             AS UserId,
+                u.first_name           AS FirstName,
+                u.last_name            AS LastName,
+                u.email                AS Email,
+                bm.role                AS Role,
+                bm.viewer_privacy_mode AS ViewerPrivacyMode,
+                bm.created_at          AS CreatedAt
             FROM public.board_members bm
             JOIN public.users u ON u.id = bm.user_id
             WHERE bm.board_id = @BoardId
@@ -120,13 +122,47 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
 
         const string sql = @"
             UPDATE public.board_members
-            SET role = @Role
+            SET role                = @Role,
+                viewer_privacy_mode = 'restricted'
             WHERE board_id = @BoardId
               AND id       = @MemberId
             RETURNING id";
 
         var updatedMemberId = await connection.ExecuteScalarAsync<Guid?>(sql,
             new { BoardId = boardId, MemberId = memberId, Role = role });
+
+        return updatedMemberId is null ? null : await GetMemberByIdAsync(boardId, memberId);
+    }
+
+    public async Task<ViewerPrivacyMode> GetCallerPrivacyModeAsync(Guid boardId, Guid userId)
+    {
+        using var connection = dbConnectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT viewer_privacy_mode
+            FROM public.board_members
+            WHERE board_id = @BoardId
+              AND user_id  = @UserId";
+
+        var mode = await connection.QuerySingleOrDefaultAsync<ViewerPrivacyMode?>(sql,
+            new { BoardId = boardId, UserId = userId });
+
+        return mode ?? ViewerPrivacyMode.Restricted;
+    }
+
+    public async Task<Member?> UpdateViewerPrivacyModeAsync(Guid boardId, Guid memberId, ViewerPrivacyMode mode)
+    {
+        using var connection = dbConnectionFactory.CreateConnection();
+
+        const string sql = @"
+            UPDATE public.board_members
+            SET viewer_privacy_mode = @Mode
+            WHERE board_id = @BoardId
+              AND id       = @MemberId
+            RETURNING id";
+
+        var updatedMemberId = await connection.ExecuteScalarAsync<Guid?>(sql,
+            new { BoardId = boardId, MemberId = memberId, Mode = mode });
 
         return updatedMemberId is null ? null : await GetMemberByIdAsync(boardId, memberId);
     }

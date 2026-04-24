@@ -57,6 +57,28 @@ public class MembersHandler(IMembersRepository repository)
         return ToResponse(updated);
     }
 
+    public async Task<ErrorOr<MemberResponse>> UpdateViewerPrivacyModeAsync(
+        Guid boardId, Guid memberId, UpdateViewerPrivacyModeRequest request, Guid callerId)
+    {
+        var callerRole = await repository.GetCallerRoleAsync(boardId, callerId);
+        if (callerRole is null)
+            return MembersErrors.BoardNotFound;
+        if (callerRole != BoardRole.Owner)
+            return MembersErrors.Forbidden;
+
+        var targetMember = await repository.GetMemberByIdAsync(boardId, memberId);
+        if (targetMember is null)
+            return MembersErrors.MemberNotFound;
+        if (targetMember.Role != BoardRole.Viewer)
+            return MembersErrors.MemberIsNotViewer;
+
+        var updated = await repository.UpdateViewerPrivacyModeAsync(boardId, memberId, request.ViewerPrivacyMode);
+        if (updated is null)
+            return MembersErrors.MemberNotFound;
+
+        return ToResponse(updated);
+    }
+
     public async Task<ErrorOr<Deleted>> RemoveMemberAsync(Guid boardId, Guid memberId, Guid callerId)
     {
         var callerRole = await repository.GetCallerRoleAsync(boardId, callerId);
@@ -79,5 +101,5 @@ public class MembersHandler(IMembersRepository repository)
     }
 
     private static MemberResponse ToResponse(Member member) =>
-        new(member.MemberId, member.UserId, member.FirstName, member.LastName, member.Email, member.Role, member.CreatedAt);
+        new(member.MemberId, member.UserId, member.FirstName, member.LastName, member.Email, member.Role, member.ViewerPrivacyMode, member.CreatedAt);
 }

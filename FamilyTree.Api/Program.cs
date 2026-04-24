@@ -9,6 +9,7 @@ SqlMapper.AddTypeHandler(new BoardRoleTypeHandler());
 SqlMapper.AddTypeHandler(new GenderTypeHandler());
 SqlMapper.AddTypeHandler(new FuzzyDatePrecisionTypeHandler());
 SqlMapper.AddTypeHandler(new FuzzyDateFieldPrecisionTypeHandler());
+SqlMapper.AddTypeHandler(new ViewerPrivacyModeTypeHandler());
 
 var builder = WebApplication.CreateBuilder(args);
 

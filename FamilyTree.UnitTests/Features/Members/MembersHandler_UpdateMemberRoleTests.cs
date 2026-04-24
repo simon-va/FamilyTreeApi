@@ -86,7 +86,7 @@ public class MembersHandler_UpdateMemberRoleTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new Member(memberId, CallerId, "Self", "User", "self@example.com", BoardRole.Owner, DateTime.UtcNow);
+        var targetMember = new Member(memberId, CallerId, "Self", "User", "self@example.com", BoardRole.Owner, ViewerPrivacyMode.Restricted, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
@@ -109,7 +109,7 @@ public class MembersHandler_UpdateMemberRoleTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, DateTime.UtcNow);
+        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, ViewerPrivacyMode.Restricted, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
@@ -137,13 +137,13 @@ public class MembersHandler_UpdateMemberRoleTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, createdAt);
+        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, ViewerPrivacyMode.Restricted, createdAt);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
             .ReturnsAsync(targetMember);
 
-        var updatedRow = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Viewer, createdAt);
+        var updatedRow = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Viewer, ViewerPrivacyMode.Restricted, createdAt);
 
         _repoMock
             .Setup(r => r.UpdateMemberRoleAsync(boardId, memberId, BoardRole.Viewer))

@@ -13,5 +13,7 @@ public interface IMembersRepository
     Task AddOwnerAsync(Guid boardId, Guid userId, IDbConnection connection, IDbTransaction transaction);
     Task<Member> AddMemberAsync(Guid boardId, Guid userId, BoardRole role);
     Task<Member?> UpdateMemberRoleAsync(Guid boardId, Guid memberId, BoardRole role);
+    Task<ViewerPrivacyMode> GetCallerPrivacyModeAsync(Guid boardId, Guid userId);
+    Task<Member?> UpdateViewerPrivacyModeAsync(Guid boardId, Guid memberId, ViewerPrivacyMode mode);
     Task<bool> DeleteMemberAsync(Guid boardId, Guid memberId);
 }

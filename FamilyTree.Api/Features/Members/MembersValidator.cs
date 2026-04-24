@@ -24,3 +24,12 @@ public class UpdateMemberRoleRequestValidator : AbstractValidator<UpdateMemberRo
             .IsInEnum().WithMessage("Role must be 'owner', 'editor' or 'viewer'.");
     }
 }
+
+public class UpdateViewerPrivacyModeRequestValidator : AbstractValidator<UpdateViewerPrivacyModeRequest>
+{
+    public UpdateViewerPrivacyModeRequestValidator()
+    {
+        RuleFor(x => x.ViewerPrivacyMode)
+            .IsInEnum().WithMessage("ViewerPrivacyMode must be 'full' or 'restricted'.");
+    }
+}

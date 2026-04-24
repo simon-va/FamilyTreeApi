@@ -19,6 +19,17 @@ public class PersonsHandler(
             return PersonsErrors.BoardNotFound;
 
         var persons = await repository.GetAllAsync(boardId);
+
+        if (role == BoardRole.Viewer)
+        {
+            var privacyMode = await membersRepository.GetCallerPrivacyModeAsync(boardId, userId);
+            return persons
+                .Select(p => privacyMode == ViewerPrivacyMode.Full || p.DeathDate != null
+                    ? ToPersonResponse(p.Person, p.BirthDate, p.DeathDate)
+                    : ToRestrictedPersonResponse(p.Person))
+                .ToList();
+        }
+
         return persons.Select(p => ToPersonResponse(p.Person, p.BirthDate, p.DeathDate)).ToList();
     }
 
@@ -99,6 +110,10 @@ public class PersonsHandler(
 
         return Result.Deleted;
     }
+
+    private static PersonResponse ToRestrictedPersonResponse(Person person) =>
+        new(person.Id, person.BoardId, person.FirstName, person.LastName,
+            null, null, person.Gender, null, null, null, null, null, null, null, null, person.CreatedAt);
 
     private static PersonResponse ToPersonResponse(Person person, FuzzyDate? birthDate, FuzzyDate? deathDate) =>
         new(person.Id, person.BoardId, person.FirstName, person.LastName, person.MiddleNames,

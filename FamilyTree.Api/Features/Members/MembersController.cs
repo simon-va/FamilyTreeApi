@@ -12,7 +12,8 @@ namespace FamilyTreeApiV2.Features.Members;
 public class MembersController(
     MembersHandler handler,
     IValidator<AddMemberRequest> addMemberValidator,
-    IValidator<UpdateMemberRoleRequest> updateMemberRoleValidator)
+    IValidator<UpdateMemberRoleRequest> updateMemberRoleValidator,
+    IValidator<UpdateViewerPrivacyModeRequest> updateViewerPrivacyModeValidator)
     : ControllerBase
 {
     [HttpGet]
@@ -64,6 +65,28 @@ public class MembersController(
 
         var userId = User.GetUserId();
         var result = await handler.UpdateMemberRoleAsync(boardId, memberId, request, userId);
+
+        return result.IsError
+            ? ErrorMapper.ToActionResult(result.Errors, this)
+            : Ok(result.Value);
+    }
+
+    [HttpPut("{memberId:guid}/viewer-privacy-mode")]
+    [ProducesResponseType<MemberResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateViewerPrivacyMode(
+        Guid boardId,
+        Guid memberId,
+        [FromBody] UpdateViewerPrivacyModeRequest request)
+    {
+        var validation = await updateViewerPrivacyModeValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+            return BadRequest(new ValidationProblemDetails(validation.ToDictionary()));
+
+        var userId = User.GetUserId();
+        var result = await handler.UpdateViewerPrivacyModeAsync(boardId, memberId, request, userId);
 
         return result.IsError
             ? ErrorMapper.ToActionResult(result.Errors, this)

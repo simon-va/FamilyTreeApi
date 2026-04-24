@@ -24,4 +24,7 @@ public static class MembersErrors
 
     public static Error CannotRemoveSelf =>
         Error.Validation("Members.CannotRemoveSelf", "You cannot remove yourself from the board.");
+
+    public static Error MemberIsNotViewer =>
+        Error.Validation("Members.MemberIsNotViewer", "Viewer privacy mode can only be set for members with the Viewer role.");
 }

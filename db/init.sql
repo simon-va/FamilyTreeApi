@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.board_members (
     board_id          uuid        NOT NULL REFERENCES public.boards(id) ON DELETE CASCADE,
     user_id           uuid        NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     role              text        NOT NULL CHECK (role IN ('owner', 'editor', 'viewer')),
-    privacy_overrides jsonb       NOT NULL DEFAULT '{}',
+    viewer_privacy_mode text        NOT NULL DEFAULT 'restricted' CHECK (viewer_privacy_mode IN ('full', 'restricted')),
     created_at        timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT board_members_pkey PRIMARY KEY (id),
     CONSTRAINT board_members_unique UNIQUE (board_id, user_id)
