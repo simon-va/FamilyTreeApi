@@ -8,7 +8,8 @@ public enum FuzzyDatePrecision
     Estimated,
     Before,
     After,
-    Between
+    Between,
+    Unknown
 }
 
 public enum FuzzyDateFieldPrecision
@@ -21,7 +22,7 @@ public enum FuzzyDateFieldPrecision
 public record FuzzyDate(
     Guid Id,
     FuzzyDatePrecision Precision,
-    DateOnly Date,
+    DateOnly? Date,
     FuzzyDateFieldPrecision? DatePrecision,
     DateOnly? DateTo,
     FuzzyDateFieldPrecision? DateToPrecision,
@@ -30,7 +31,7 @@ public record FuzzyDate(
 
 public record FuzzyDateRequest(
     FuzzyDatePrecision Precision,
-    DateOnly Date,
+    DateOnly? Date,
     FuzzyDateFieldPrecision? DatePrecision,
     DateOnly? DateTo,
     FuzzyDateFieldPrecision? DateToPrecision,
@@ -39,7 +40,7 @@ public record FuzzyDateRequest(
 public record FuzzyDateResponse(
     Guid Id,
     FuzzyDatePrecision Precision,
-    DateOnly Date,
+    DateOnly? Date,
     FuzzyDateFieldPrecision? DatePrecision,
     DateOnly? DateTo,
     FuzzyDateFieldPrecision? DateToPrecision,

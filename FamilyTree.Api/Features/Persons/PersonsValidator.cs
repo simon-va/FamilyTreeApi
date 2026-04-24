@@ -8,6 +8,21 @@ public class FuzzyDateRequestValidator : AbstractValidator<FuzzyDateRequest>
 {
     public FuzzyDateRequestValidator()
     {
+        RuleFor(x => x.Date)
+            .Null()
+            .WithMessage("'Date' must be null when Precision is 'Unknown'.")
+            .When(x => x.Precision == FuzzyDatePrecision.Unknown);
+
+        RuleFor(x => x.Date)
+            .NotNull()
+            .WithMessage("'Date' is required when Precision is not 'Unknown'.")
+            .When(x => x.Precision != FuzzyDatePrecision.Unknown);
+
+        RuleFor(x => x.Date)
+            .Must(date => date!.Value <= DateOnly.FromDateTime(DateTimeOffset.UtcNow.Date))
+            .WithMessage("'Date' must not be in the future.")
+            .When(x => x.Date is not null);
+
         RuleFor(x => x.DateTo)
             .NotNull()
             .WithMessage("'DateTo' is required when Precision is 'Between'.")
@@ -19,20 +34,16 @@ public class FuzzyDateRequestValidator : AbstractValidator<FuzzyDateRequest>
             .When(x => x.Precision != FuzzyDatePrecision.Between);
 
         RuleFor(x => x.DateTo)
-            .Must((dto, dateTo) => dateTo!.Value > dto.Date)
+            .Must((dto, dateTo) => dateTo!.Value > dto.Date!.Value)
             .WithMessage("'DateTo' must be after 'Date' when Precision is 'Between'.")
-            .When(x => x.Precision == FuzzyDatePrecision.Between && x.DateTo is not null);
-
-        RuleFor(x => x.Note).MaximumLength(1000);
-
-        RuleFor(x => x.Date)
-            .Must(date => date <= DateOnly.FromDateTime(DateTimeOffset.UtcNow.Date))
-            .WithMessage("'Date' must not be in the future.");
+            .When(x => x.Precision == FuzzyDatePrecision.Between && x.DateTo is not null && x.Date is not null);
 
         RuleFor(x => x.DateTo)
             .Must(dateTo => dateTo!.Value <= DateOnly.FromDateTime(DateTimeOffset.UtcNow.Date))
             .WithMessage("'DateTo' must not be in the future.")
             .When(x => x.DateTo is not null);
+
+        RuleFor(x => x.Note).MaximumLength(1000);
     }
 }
 

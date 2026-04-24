@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS public.board_members (
 
 CREATE TABLE IF NOT EXISTS public.fuzzy_dates (
     id                uuid        NOT NULL DEFAULT gen_random_uuid(),
-    precision         text        NOT NULL CHECK (precision IN ('exact', 'month', 'year', 'estimated', 'before', 'after', 'between')),
-    date              date        NOT NULL,
+    precision         text        NOT NULL CHECK (precision IN ('exact', 'month', 'year', 'estimated', 'before', 'after', 'between', 'unknown')),
+    date              date,
     date_precision    text        CHECK (date_precision IN ('exact', 'month', 'year')),
     date_to           date,
     date_to_precision text        CHECK (date_to_precision IN ('exact', 'month', 'year')),
