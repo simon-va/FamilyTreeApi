@@ -8,7 +8,7 @@ public static class MembersErrors
         Error.NotFound("Members.BoardNotFound", "Board not found or you are not a member.");
 
     public static Error Forbidden =>
-        Error.Unauthorized("Members.Forbidden", "Only the board owner can perform this action.");
+        Error.Forbidden("Members.Forbidden", "Only the board owner can perform this action.");
 
     public static Error UserNotFound =>
         Error.NotFound("Members.UserNotFound", "No registered user found with that email address.");

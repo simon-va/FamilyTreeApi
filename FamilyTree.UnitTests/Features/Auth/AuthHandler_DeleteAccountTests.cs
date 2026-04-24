@@ -46,6 +46,10 @@ public class AuthHandler_DeleteAccountTests
             .Setup(r => r.IsLastOwnerOfAnyBoardAsync(UserId))
             .ReturnsAsync(false);
 
+        _repoMock
+            .Setup(r => r.DeleteUserAsync(UserId))
+            .Returns(Task.CompletedTask);
+
         _supabaseAdminMock
             .Setup(s => s.DeleteUserAsync(UserId))
             .ReturnsAsync(false);
@@ -54,7 +58,7 @@ public class AuthHandler_DeleteAccountTests
 
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("Auth.DeleteFailed");
-        _repoMock.Verify(r => r.DeleteUserAsync(It.IsAny<Guid>()), Times.Never);
+        _repoMock.Verify(r => r.DeleteUserAsync(UserId), Times.Once);
     }
 
     [Fact]

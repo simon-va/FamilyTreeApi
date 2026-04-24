@@ -8,7 +8,7 @@ public static class PersonsErrors
         Error.NotFound("Persons.BoardNotFound", "Board not found or you are not a member.");
 
     public static Error Forbidden =>
-        Error.Unauthorized("Persons.Forbidden", "Only owners and editors can perform this action.");
+        Error.Forbidden("Persons.Forbidden", "Only owners and editors can perform this action.");
 
     public static Error PersonNotFound =>
         Error.NotFound("Persons.PersonNotFound", "Person not found.");

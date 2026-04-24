@@ -8,5 +8,5 @@ public static class BoardsErrors
         Error.NotFound("Boards.NotFound", "Board not found.");
 
     public static Error Forbidden =>
-        Error.Unauthorized("Boards.Forbidden", "Only the board owner can delete it.");
+        Error.Forbidden("Boards.Forbidden", "Only the board owner can delete it.");
 }

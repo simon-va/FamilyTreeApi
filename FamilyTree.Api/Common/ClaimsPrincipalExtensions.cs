@@ -5,5 +5,9 @@ namespace FamilyTreeApiV2.Common;
 public static class ClaimsPrincipalExtensions
 {
     public static Guid GetUserId(this ClaimsPrincipal user)
-        => Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    {
+        var value = user.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new InvalidOperationException("NameIdentifier claim is missing from JWT.");
+        return Guid.Parse(value);
+    }
 }

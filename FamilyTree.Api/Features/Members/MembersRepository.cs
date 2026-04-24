@@ -16,8 +16,7 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
             WHERE board_id = @BoardId
               AND user_id  = @UserId";
 
-        var roleString = await connection.ExecuteScalarAsync<string?>(sql, new { BoardId = boardId, UserId = userId });
-        return roleString is null ? null : Enum.Parse<BoardRole>(roleString, ignoreCase: true);
+        return await connection.QuerySingleOrDefaultAsync<BoardRole?>(sql, new { BoardId = boardId, UserId = userId });
     }
 
     public async Task<IEnumerable<Member>> GetMembersAsync(Guid boardId)

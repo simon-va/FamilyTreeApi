@@ -35,6 +35,7 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
         }
         catch (Exception ex)
         {
+            await supabaseAdmin.DeleteUserAsync(userId);
             return AuthErrors.ProfileWriteFailed(ex.Message);
         }
 
@@ -72,11 +73,11 @@ public class AuthHandler(Supabase.Client supabase, IAuthRepository authRepositor
         if (isLastOwner)
             return AuthErrors.LastBoardOwner;
 
+        await authRepository.DeleteUserAsync(userId);
+
         var deleted = await supabaseAdmin.DeleteUserAsync(userId);
         if (!deleted)
             return AuthErrors.DeleteFailed;
-
-        await authRepository.DeleteUserAsync(userId);
 
         return Result.Deleted;
     }

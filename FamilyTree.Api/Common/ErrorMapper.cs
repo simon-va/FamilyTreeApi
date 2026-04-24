@@ -27,6 +27,7 @@ public static class ErrorMapper
             ErrorType.NotFound     => controller.NotFound(new { firstError.Code, firstError.Description }),
             ErrorType.Conflict     => controller.Conflict(new { firstError.Code, firstError.Description }),
             ErrorType.Unauthorized => controller.Unauthorized(),
+            ErrorType.Forbidden    => controller.StatusCode(403, new { firstError.Code, firstError.Description }),
             _                      => controller.StatusCode(500, new { firstError.Code, firstError.Description })
         };
     }
