@@ -10,6 +10,7 @@ SqlMapper.AddTypeHandler(new GenderTypeHandler());
 SqlMapper.AddTypeHandler(new FuzzyDatePrecisionTypeHandler());
 SqlMapper.AddTypeHandler(new FuzzyDateFieldPrecisionTypeHandler());
 SqlMapper.AddTypeHandler(new ViewerPrivacyModeTypeHandler());
+SqlMapper.AddTypeHandler(new NullableViewerPrivacyModeTypeHandler());
 
 var builder = WebApplication.CreateBuilder(args);
 

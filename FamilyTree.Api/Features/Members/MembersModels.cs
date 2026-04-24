@@ -13,7 +13,7 @@ public record Member(
     string LastName,
     string Email,
     BoardRole Role,
-    ViewerPrivacyMode ViewerPrivacyMode,
+    ViewerPrivacyMode? ViewerPrivacyMode,
     DateTime CreatedAt);
 
 public record MemberResponse(
@@ -23,5 +23,5 @@ public record MemberResponse(
     string LastName,
     string Email,
     BoardRole Role,
-    ViewerPrivacyMode ViewerPrivacyMode,
+    ViewerPrivacyMode? ViewerPrivacyMode,
     DateTime CreatedAt);

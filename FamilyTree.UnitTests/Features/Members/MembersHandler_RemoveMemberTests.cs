@@ -87,7 +87,7 @@ public class MembersHandler_RemoveMemberTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new Member(memberId, CallerId, "Self", "User", "self@example.com", BoardRole.Owner, ViewerPrivacyMode.Restricted, DateTime.UtcNow);
+        var targetMember = new Member(memberId, CallerId, "Self", "User", "self@example.com", BoardRole.Owner, null, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
@@ -110,7 +110,7 @@ public class MembersHandler_RemoveMemberTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, ViewerPrivacyMode.Restricted, DateTime.UtcNow);
+        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, null, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))
@@ -137,7 +137,7 @@ public class MembersHandler_RemoveMemberTests
             .Setup(r => r.GetCallerRoleAsync(boardId, CallerId))
             .ReturnsAsync(BoardRole.Owner);
 
-        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, ViewerPrivacyMode.Restricted, DateTime.UtcNow);
+        var targetMember = new Member(memberId, targetUserId, "Other", "User", "other@example.com", BoardRole.Editor, null, DateTime.UtcNow);
 
         _repoMock
             .Setup(r => r.GetMemberByIdAsync(boardId, memberId))

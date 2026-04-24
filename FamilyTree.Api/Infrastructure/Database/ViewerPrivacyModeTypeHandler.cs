@@ -12,3 +12,12 @@ public class ViewerPrivacyModeTypeHandler : SqlMapper.TypeHandler<ViewerPrivacyM
     public override ViewerPrivacyMode Parse(object value)
         => Enum.Parse<ViewerPrivacyMode>((string)value, ignoreCase: true);
 }
+
+public class NullableViewerPrivacyModeTypeHandler : SqlMapper.TypeHandler<ViewerPrivacyMode?>
+{
+    public override void SetValue(IDbDataParameter parameter, ViewerPrivacyMode? value)
+        => parameter.Value = value.HasValue ? (object)value.Value.ToString().ToLower() : DBNull.Value;
+
+    public override ViewerPrivacyMode? Parse(object value)
+        => value is null or DBNull ? null : Enum.Parse<ViewerPrivacyMode>((string)value, ignoreCase: true);
+}

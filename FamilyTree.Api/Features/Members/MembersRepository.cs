@@ -106,12 +106,13 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
         using var connection = dbConnectionFactory.CreateConnection();
 
         const string sql = @"
-            INSERT INTO public.board_members (board_id, user_id, role)
-            VALUES (@BoardId, @UserId, @Role)
+            INSERT INTO public.board_members (board_id, user_id, role, viewer_privacy_mode)
+            VALUES (@BoardId, @UserId, @Role, @ViewerPrivacyMode)
             RETURNING id AS MemberId";
 
+        string? viewerPrivacyMode = role == BoardRole.Viewer ? "restricted" : null;
         var newId = await connection.ExecuteScalarAsync<Guid>(sql,
-            new { BoardId = boardId, UserId = userId, Role = role });
+            new { BoardId = boardId, UserId = userId, Role = role, ViewerPrivacyMode = viewerPrivacyMode });
 
         return (await GetMemberByIdAsync(boardId, newId))!;
     }
@@ -123,13 +124,14 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
         const string sql = @"
             UPDATE public.board_members
             SET role                = @Role,
-                viewer_privacy_mode = 'restricted'
+                viewer_privacy_mode = @ViewerPrivacyMode
             WHERE board_id = @BoardId
               AND id       = @MemberId
             RETURNING id";
 
+        string? viewerPrivacyMode = role == BoardRole.Viewer ? "restricted" : null;
         var updatedMemberId = await connection.ExecuteScalarAsync<Guid?>(sql,
-            new { BoardId = boardId, MemberId = memberId, Role = role });
+            new { BoardId = boardId, MemberId = memberId, Role = role, ViewerPrivacyMode = viewerPrivacyMode });
 
         return updatedMemberId is null ? null : await GetMemberByIdAsync(boardId, memberId);
     }
