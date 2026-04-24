@@ -1,3 +1,4 @@
+using System.Data;
 using FamilyTreeApiV2.Shared;
 
 namespace FamilyTreeApiV2.Features.Members;
@@ -9,6 +10,7 @@ public interface IMembersRepository
     Task<Member?> GetMemberByIdAsync(Guid boardId, Guid memberId);
     Task<Guid?> GetUserIdByEmailAsync(string email);
     Task<bool> IsMemberAsync(Guid boardId, Guid userId);
+    Task AddOwnerAsync(Guid boardId, Guid userId, IDbConnection connection, IDbTransaction transaction);
     Task<Member> AddMemberAsync(Guid boardId, Guid userId, BoardRole role);
     Task<Member?> UpdateMemberRoleAsync(Guid boardId, Guid memberId, BoardRole role);
     Task<bool> DeleteMemberAsync(Guid boardId, Guid memberId);

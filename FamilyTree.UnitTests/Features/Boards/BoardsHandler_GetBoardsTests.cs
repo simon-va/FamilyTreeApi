@@ -1,4 +1,6 @@
 using FamilyTreeApiV2.Features.Boards;
+using FamilyTreeApiV2.Features.Members;
+using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Shared;
 using FluentAssertions;
 using Moq;
@@ -17,7 +19,7 @@ public class BoardsHandler_GetBoardsTests
 
     public BoardsHandler_GetBoardsTests()
     {
-        _handler = new BoardsHandler(_repoMock.Object);
+        _handler = new BoardsHandler(_repoMock.Object, new Mock<IMembersRepository>().Object, new Mock<IDbConnectionFactory>().Object);
     }
 
     [Fact]

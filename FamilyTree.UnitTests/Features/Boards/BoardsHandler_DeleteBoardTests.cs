@@ -1,5 +1,7 @@
 using ErrorOr;
 using FamilyTreeApiV2.Features.Boards;
+using FamilyTreeApiV2.Features.Members;
+using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Shared;
 using FluentAssertions;
 using Moq;
@@ -15,11 +17,12 @@ public class BoardsHandler_DeleteBoardTests
     private static readonly Guid UserId = new Guid("00000000-0000-0000-0000-000000000001");
 
     private readonly Mock<IBoardsRepository> _repoMock = new();
+    private readonly Mock<IMembersRepository> _memberRepoMock = new();
     private readonly BoardsHandler _handler;
 
     public BoardsHandler_DeleteBoardTests()
     {
-        _handler = new BoardsHandler(_repoMock.Object);
+        _handler = new BoardsHandler(_repoMock.Object, _memberRepoMock.Object, new Mock<IDbConnectionFactory>().Object);
     }
 
     [Fact]
@@ -27,8 +30,8 @@ public class BoardsHandler_DeleteBoardTests
     {
         var boardId = Guid.NewGuid();
 
-        _repoMock
-            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, UserId))
+        _memberRepoMock
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync((BoardRole?)null);
 
         var result = await _handler.DeleteBoardAsync(boardId, UserId);
@@ -42,8 +45,8 @@ public class BoardsHandler_DeleteBoardTests
     {
         var boardId = Guid.NewGuid();
 
-        _repoMock
-            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, UserId))
+        _memberRepoMock
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Editor);
 
         var result = await _handler.DeleteBoardAsync(boardId, UserId);
@@ -57,8 +60,8 @@ public class BoardsHandler_DeleteBoardTests
     {
         var boardId = Guid.NewGuid();
 
-        _repoMock
-            .Setup(r => r.GetUserRoleOnBoardAsync(boardId, UserId))
+        _memberRepoMock
+            .Setup(r => r.GetCallerRoleAsync(boardId, UserId))
             .ReturnsAsync(BoardRole.Owner);
 
         _repoMock

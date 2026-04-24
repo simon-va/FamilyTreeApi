@@ -1,3 +1,4 @@
+using System.Data;
 using Dapper;
 using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Shared;
@@ -87,6 +88,15 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
             )";
 
         return await connection.ExecuteScalarAsync<bool>(sql, new { BoardId = boardId, UserId = userId });
+    }
+
+    public async Task AddOwnerAsync(Guid boardId, Guid userId, IDbConnection connection, IDbTransaction transaction)
+    {
+        const string sql = @"
+            INSERT INTO public.board_members (board_id, user_id, role)
+            VALUES (@BoardId, @UserId, 'owner')";
+
+        await connection.ExecuteAsync(sql, new { BoardId = boardId, UserId = userId }, transaction);
     }
 
     public async Task<Member> AddMemberAsync(Guid boardId, Guid userId, BoardRole role)
