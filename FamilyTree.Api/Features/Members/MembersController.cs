@@ -8,6 +8,7 @@ namespace FamilyTreeApiV2.Features.Members;
 [ApiController]
 [Route("boards/{boardId:guid}/members")]
 [Authorize]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class MembersController(
     MembersHandler handler,
     IValidator<AddMemberRequest> addMemberValidator,
@@ -15,6 +16,8 @@ public class MembersController(
     : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType<List<MemberResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMembers(Guid boardId)
     {
         var userId = User.GetUserId();
@@ -26,6 +29,11 @@ public class MembersController(
     }
 
     [HttpPost]
+    [ProducesResponseType<MemberResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AddMember(Guid boardId, [FromBody] AddMemberRequest request)
     {
         var validation = await addMemberValidator.ValidateAsync(request);
@@ -41,6 +49,10 @@ public class MembersController(
     }
 
     [HttpPut("{memberId:guid}")]
+    [ProducesResponseType<MemberResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateMemberRole(
         Guid boardId,
         Guid memberId,
@@ -59,6 +71,10 @@ public class MembersController(
     }
 
     [HttpDelete("{memberId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveMember(Guid boardId, Guid memberId)
     {
         var userId = User.GetUserId();

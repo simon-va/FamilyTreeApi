@@ -26,6 +26,13 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+    options.AddDocumentTransformer((doc, _, _) =>
+    {
+        doc.Info.Title = "FamilyTree API";
+        doc.Info.Version = "v1";
+        doc.Info.Description = "API für die Verwaltung von Familienstammbäumen (DSGVO-konform, DACH-Region).";
+        return Task.CompletedTask;
+    });
 });
 
 var app = builder.Build();

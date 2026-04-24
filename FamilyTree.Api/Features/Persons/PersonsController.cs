@@ -8,6 +8,7 @@ namespace FamilyTreeApiV2.Features.Persons;
 [ApiController]
 [Route("boards/{boardId:guid}/persons")]
 [Authorize]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class PersonsController(
     PersonsHandler handler,
     IValidator<CreatePersonRequest> createPersonValidator,
@@ -15,6 +16,8 @@ public class PersonsController(
     : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType<List<PersonResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAll(Guid boardId)
     {
         var userId = User.GetUserId();
@@ -26,6 +29,10 @@ public class PersonsController(
     }
 
     [HttpPost]
+    [ProducesResponseType<PersonResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Create(Guid boardId, [FromBody] CreatePersonRequest request)
     {
         var validation = await createPersonValidator.ValidateAsync(request);
@@ -41,6 +48,10 @@ public class PersonsController(
     }
 
     [HttpPut("{personId:guid}")]
+    [ProducesResponseType<PersonResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(
         Guid boardId,
         Guid personId,
@@ -59,6 +70,9 @@ public class PersonsController(
     }
 
     [HttpDelete("{personId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid boardId, Guid personId)
     {
         var userId = User.GetUserId();

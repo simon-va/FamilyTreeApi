@@ -14,6 +14,9 @@ public class AuthController(
     : ControllerBase
 {
     [HttpPost("signup")]
+    [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SignUp([FromBody] SignUpRequest request)
     {
         var validation = await signUpValidator.ValidateAsync(request);
@@ -28,6 +31,8 @@ public class AuthController(
     }
 
     [HttpPost("login")]
+    [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var validation = await loginValidator.ValidateAsync(request);
@@ -43,6 +48,10 @@ public class AuthController(
 
     [HttpDelete("account")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeleteAccount()
     {
         var userId = User.GetUserId();

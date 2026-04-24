@@ -8,12 +8,15 @@ namespace FamilyTreeApiV2.Features.Boards;
 [ApiController]
 [Route("boards")]
 [Authorize]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class BoardsController(
     BoardsHandler handler,
     IValidator<CreateBoardRequest> createBoardValidator)
     : ControllerBase
 {
     [HttpPost]
+    [ProducesResponseType<BoardResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateBoard([FromBody] CreateBoardRequest request)
     {
         var validation = await createBoardValidator.ValidateAsync(request);
@@ -29,6 +32,7 @@ public class BoardsController(
     }
 
     [HttpGet]
+    [ProducesResponseType<List<BoardResponse>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetBoards()
     {
         var userId = User.GetUserId();
@@ -40,6 +44,9 @@ public class BoardsController(
     }
 
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteBoard(Guid id)
     {
         var userId = User.GetUserId();
