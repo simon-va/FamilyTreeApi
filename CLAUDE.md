@@ -4,7 +4,7 @@
 
 A web application for building and managing family trees, targeting German-speaking casual users and families (DACH region). The focus is on simplicity, modern UX, data privacy (DSGVO-compliant), and collaborative family tree management.
 
-**Current status:** MVP exists. Auth, Boards, Members, and Persons endpoints are implemented. Relations, Residences, Locks, Documents, and AuditLogs are planned but not yet implemented.
+**Current status:** MVP exists. Auth, Boards, Members, Persons, Relations, and Residences endpoints are implemented. Locks, Documents, and AuditLogs are planned but not yet implemented.
 
 **Frontend:** Angular web app (separate repository). No mobile apps planned at this stage.
 
@@ -41,7 +41,9 @@ FamilyTree.Api/
 │   ├── Auth/
 │   ├── Boards/
 │   ├── Members/
-│   └── Persons/
+│   ├── Persons/
+│   ├── Relations/
+│   └── Residences/
 ├── Shared/            # Domain concepts used by multiple features, no own controller
 │   └── BoardRole.cs
 ├── Infrastructure/    # Services that talk to external systems, used by multiple features
@@ -127,11 +129,11 @@ Whenever a new migration is added, `db/init.sql` must be updated accordingly —
 |---|---|---|
 | `users` | Implemented | Managed by Supabase Auth. Extended with `first_name` and `last_name` written by the API on sign-up. |
 | `boards` | Implemented | Represents a family tree. All data is scoped to a board. |
-| `board_members` | Implemented | Links users to boards with a role (`owner`, `editor`, `viewer`) and `privacy_overrides` (JSONB) |
+| `board_members` | Implemented | Links users to boards with a role (`owner`, `editor`, `viewer`) and `viewer_privacy_mode` (text) |
 | `persons` | Implemented | Core data, scoped to `board_id` |
-| `relations` | Planned | Scoped to `board_id` |
-| `residences` | Planned | Scoped to `board_id` |
-| `fuzzy_dates` | Planned | Shared date type referenced by other tables. No own endpoint. |
+| `relations` | Implemented | Connections between two persons, scoped to `board_id` |
+| `residences` | Implemented | Wohnorte einer Person, scoped to `board_id` and `person_id` |
+| `fuzzy_dates` | Implemented | Shared date type referenced by persons, relations, and residences. No own endpoint. |
 | `resource_locks` | Planned | Tracks which user is currently editing a resource, with TTL |
 | `audit_logs` | Planned | Append-only log of all write actions, stores JSON snapshot of resource state |
 | `documents` | Planned | File metadata. Actual files stored in Supabase Storage. |
@@ -140,8 +142,8 @@ Whenever a new migration is added, `db/init.sql` must be updated accordingly —
 All DELETE endpoints perform hard deletes (physical `DELETE` statements). No soft delete — there are no `is_deleted` or `deleted_at` columns.
 
 Cascading is handled at two levels:
-- **PostgreSQL FK cascade:** `board_members` and `persons` have `ON DELETE CASCADE` on their `board_id` FK — deleting a board removes all its members and persons automatically.
-- **PostgreSQL trigger:** A `BEFORE DELETE` trigger on `persons` (`trigger_delete_person_fuzzy_dates`) deletes the associated `fuzzy_dates` rows for `birth_date_id` and `death_date_id`. This trigger also fires for cascade-deletes caused by a board delete.
+- **PostgreSQL FK cascade:** `board_members`, `persons`, `relations`, and `residences` have `ON DELETE CASCADE` on their `board_id` FK — deleting a board removes all dependent data automatically. `relations` and `residences` also cascade on `person_id`.
+- **PostgreSQL trigger:** Each table that owns `fuzzy_dates` has a `BEFORE DELETE` trigger that deletes the associated rows: `trigger_delete_person_fuzzy_dates`, `trigger_delete_relation_fuzzy_dates`, `trigger_delete_residence_fuzzy_dates`. These triggers also fire for cascade-deletes.
 
 ### Board Scoping
 Every data record (person, relation, residence, document, lock, audit entry) is scoped to a `board_id`. No data is bound to a `user_id` directly. Access is controlled via the `board_members` table.
