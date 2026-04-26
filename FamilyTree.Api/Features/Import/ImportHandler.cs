@@ -3,6 +3,7 @@ using FamilyTreeApiV2.Features.Boards;
 using FamilyTreeApiV2.Features.Members;
 using FamilyTreeApiV2.Features.Persons;
 using FamilyTreeApiV2.Features.Relations;
+using FamilyTreeApiV2.Features.Residences;
 using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Shared.FuzzyDates;
 
@@ -15,6 +16,7 @@ public class ImportHandler(
     IMembersRepository membersRepository,
     IPersonsRepository personsRepository,
     IRelationsRepository relationsRepository,
+    IResidencesRepository residencesRepository,
     IFuzzyDateRepository fuzzyDateRepository,
     IDbConnectionFactory connectionFactory)
 {
@@ -30,6 +32,10 @@ public class ImportHandler(
 
         var v1Relations = await tobitApiService.GetRelationsAsync(token);
         if (v1Relations is null)
+            return ImportErrors.OldApiFailed;
+
+        var v1Residences = await tobitApiService.GetResidencesAsync(token);
+        if (v1Residences is null)
             return ImportErrors.OldApiFailed;
 
         using var connection = connectionFactory.CreateConnection();
@@ -85,6 +91,32 @@ public class ImportHandler(
             await relationsRepository.CreateAsync(
                 board.Id,
                 relationRequest,
+                startDateResult.Value?.Id,
+                endDateResult.Value?.Id,
+                connection,
+                transaction);
+        }
+
+        foreach (var v1Residence in v1Residences)
+        {
+            if (!personIdMap.TryGetValue(v1Residence.PersonId, out var personId))
+                continue;
+
+            var residenceRequest = ImportMapper.ToCreateResidenceRequest(v1Residence, personId);
+
+            var startDateResult = await FuzzyDateUpsertHelper.UpsertAsync(
+                fuzzyDateRepository, residenceRequest.StartDate, null, connection, transaction);
+            if (startDateResult.IsError)
+                return startDateResult.Errors;
+
+            var endDateResult = await FuzzyDateUpsertHelper.UpsertAsync(
+                fuzzyDateRepository, residenceRequest.EndDate, null, connection, transaction);
+            if (endDateResult.IsError)
+                return endDateResult.Errors;
+
+            await residencesRepository.CreateAsync(
+                board.Id,
+                residenceRequest,
                 startDateResult.Value?.Id,
                 endDateResult.Value?.Id,
                 connection,

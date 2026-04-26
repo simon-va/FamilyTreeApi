@@ -35,4 +35,16 @@ public class TobitApiService(IHttpClientFactory httpClientFactory) : ITobitApiSe
 
         return await response.Content.ReadFromJsonAsync<IEnumerable<V1Relation>>(JsonOptions);
     }
+
+    public async Task<IEnumerable<V1Residence>?> GetResidencesAsync(string token)
+    {
+        using var http = httpClientFactory.CreateClient();
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await http.GetAsync($"{BaseUrl}/residences");
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        return await response.Content.ReadFromJsonAsync<IEnumerable<V1Residence>>(JsonOptions);
+    }
 }

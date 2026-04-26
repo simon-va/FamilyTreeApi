@@ -1,5 +1,6 @@
 using FamilyTreeApiV2.Features.Persons;
 using FamilyTreeApiV2.Features.Relations;
+using FamilyTreeApiV2.Features.Residences;
 using FamilyTreeApiV2.Shared;
 using FamilyTreeApiV2.Shared.FuzzyDates;
 
@@ -7,6 +8,16 @@ namespace FamilyTreeApiV2.Features.Import;
 
 internal static class ImportMapper
 {
+    internal static CreateResidenceRequest ToCreateResidenceRequest(V1Residence v1, Guid personId) =>
+        new(
+            PersonId: personId,
+            City: v1.City,
+            Country: v1.Country,
+            Street: v1.Street,
+            Notes: v1.Notes,
+            StartDate: v1.StartDate is not null ? ToFuzzyDateRequest(v1.StartDate) : null,
+            EndDate: v1.EndDate is not null ? ToFuzzyDateRequest(v1.EndDate) : null);
+
     internal static CreateRelationRequest ToCreateRelationRequest(V1Relation v1, Guid personAId, Guid personBId) =>
         new(
             PersonAId: personAId,

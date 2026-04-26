@@ -34,3 +34,13 @@ public record V1Relation(
     V1FuzzyDate? EndDate,
     string? EndReason,
     string Notes);
+
+public record V1Residence(
+    string Id,
+    string PersonId,
+    string? City,
+    string? Country,
+    string? Street,
+    string? Notes,
+    V1FuzzyDate? StartDate,
+    V1FuzzyDate? EndDate);
