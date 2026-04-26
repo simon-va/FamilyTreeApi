@@ -1,5 +1,0 @@
-ALTER TABLE public.users
-    ADD COLUMN IF NOT EXISTS email text NOT NULL DEFAULT '';
-
-ALTER TABLE public.users
-    ALTER COLUMN email DROP DEFAULT;

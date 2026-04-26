@@ -1,0 +1,26 @@
+namespace FamilyTreeApiV2.Features.Import;
+
+public record V1Person(
+    string Id,
+    string FirstName,
+    string LastName,
+    string? MiddleNames,
+    string? BirthName,
+    string? Gender,
+    string? BirthPlace,
+    V1FuzzyDate? BirthDate,
+    string? DeathPlace,
+    V1FuzzyDate? DeathDate,
+    string? BurialPlace,
+    string? Title,
+    string? Religion,
+    string? Notes);
+
+public record V1FuzzyDate(
+    string Id,
+    string Precision,
+    string? Date,
+    string? DatePrecision,
+    string? DateTo,
+    string? DateToPrecision,
+    string? Note);

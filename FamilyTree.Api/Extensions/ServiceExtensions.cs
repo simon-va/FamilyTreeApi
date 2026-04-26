@@ -1,5 +1,6 @@
 using FamilyTreeApiV2.Features.Auth;
 using FamilyTreeApiV2.Features.Boards;
+using FamilyTreeApiV2.Features.Import;
 using FamilyTreeApiV2.Features.Members;
 using FamilyTreeApiV2.Features.Persons;
 using FamilyTreeApiV2.Features.Relations;
@@ -60,6 +61,10 @@ public static class ServiceExtensions
 
         services.AddScoped<IResidencesRepository, ResidencesRepository>();
         services.AddScoped<ResidencesHandler>();
+
+        services.AddScoped<ITobitAuthService, TobitAuthService>();
+        services.AddScoped<ITobitApiService, TobitApiService>();
+        services.AddScoped<ImportHandler>();
 
         services.AddValidatorsFromAssemblyContaining<SignUpRequestValidator>();
 
