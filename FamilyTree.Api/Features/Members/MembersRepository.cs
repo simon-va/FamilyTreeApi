@@ -96,9 +96,9 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
     {
         const string sql = @"
             INSERT INTO public.board_members (board_id, user_id, role)
-            VALUES (@BoardId, @UserId, 'owner')";
+            VALUES (@BoardId, @UserId, @Role)";
 
-        await connection.ExecuteAsync(sql, new { BoardId = boardId, UserId = userId }, transaction);
+        await connection.ExecuteAsync(sql, new { BoardId = boardId, UserId = userId, Role = BoardRole.Owner }, transaction);
     }
 
     public async Task<Member> AddMemberAsync(Guid boardId, Guid userId, BoardRole role)
@@ -110,7 +110,7 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
             VALUES (@BoardId, @UserId, @Role, @ViewerPrivacyMode)
             RETURNING id AS MemberId";
 
-        string? viewerPrivacyMode = role == BoardRole.Viewer ? "restricted" : null;
+        ViewerPrivacyMode? viewerPrivacyMode = role == BoardRole.Viewer ? ViewerPrivacyMode.Restricted : null;
         var newId = await connection.ExecuteScalarAsync<Guid>(sql,
             new { BoardId = boardId, UserId = userId, Role = role, ViewerPrivacyMode = viewerPrivacyMode });
 
@@ -129,7 +129,7 @@ public class MembersRepository(IDbConnectionFactory dbConnectionFactory) : IMemb
               AND id       = @MemberId
             RETURNING id";
 
-        string? viewerPrivacyMode = role == BoardRole.Viewer ? "restricted" : null;
+        ViewerPrivacyMode? viewerPrivacyMode = role == BoardRole.Viewer ? ViewerPrivacyMode.Restricted : null;
         var updatedMemberId = await connection.ExecuteScalarAsync<Guid?>(sql,
             new { BoardId = boardId, MemberId = memberId, Role = role, ViewerPrivacyMode = viewerPrivacyMode });
 

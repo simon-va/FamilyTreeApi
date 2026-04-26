@@ -6,7 +6,8 @@
       "Bash(dotnet test *)",
       "Bash(export PATH=\"$PATH:/usr/local/share/dotnet:/usr/share/dotnet:$HOME/.dotnet\")",
       "Bash(~/.dotnet/dotnet test *)",
-      "Bash(/Users/svahlbrock/.dotnet/dotnet build *)"
+      "Bash(/Users/svahlbrock/.dotnet/dotnet build *)",
+      "Bash(grep -E \"\\\\.cs$\")"
     ]
   }
 }

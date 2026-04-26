@@ -2,21 +2,21 @@ namespace FamilyTreeApiV2.Shared.FuzzyDates;
 
 public enum FuzzyDatePrecision
 {
-    Exact,
-    Month,
-    Year,
-    Estimated,
-    Before,
-    After,
-    Between,
-    Unknown
+    Exact = 0,
+    Month = 1,
+    Year = 2,
+    Estimated = 3,
+    Before = 4,
+    After = 5,
+    Between = 6,
+    Unknown = 7
 }
 
 public enum FuzzyDateFieldPrecision
 {
-    Exact,
-    Month,
-    Year
+    Exact = 0,
+    Month = 1,
+    Year = 2
 }
 
 public record FuzzyDate(

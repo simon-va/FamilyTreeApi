@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS public.board_members (
     id                uuid        NOT NULL DEFAULT gen_random_uuid(),
     board_id          uuid        NOT NULL REFERENCES public.boards(id) ON DELETE CASCADE,
     user_id           uuid        NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-    role              text        NOT NULL CHECK (role IN ('owner', 'editor', 'viewer')),
-    viewer_privacy_mode text        CHECK (viewer_privacy_mode IN ('full', 'restricted')),
+    role              integer     NOT NULL,
+    viewer_privacy_mode integer,
     created_at        timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT board_members_pkey PRIMARY KEY (id),
     CONSTRAINT board_members_unique UNIQUE (board_id, user_id)
@@ -28,11 +28,11 @@ CREATE TABLE IF NOT EXISTS public.board_members (
 
 CREATE TABLE IF NOT EXISTS public.fuzzy_dates (
     id                uuid        NOT NULL DEFAULT gen_random_uuid(),
-    precision         text        NOT NULL CHECK (precision IN ('exact', 'month', 'year', 'estimated', 'before', 'after', 'between', 'unknown')),
+    precision         integer     NOT NULL,
     date              date,
-    date_precision    text        CHECK (date_precision IN ('exact', 'month', 'year')),
+    date_precision    integer,
     date_to           date,
-    date_to_precision text        CHECK (date_to_precision IN ('exact', 'month', 'year')),
+    date_to_precision integer,
     note              text,
     created_at        timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT pk_fuzzy_dates PRIMARY KEY (id)
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS public.persons (
     last_name     text        NOT NULL,
     middle_names  text,
     birth_name    text,
-    gender        text        CHECK (gender IN ('male', 'female', 'diverse')),
+    gender        integer,
     birth_place   text,
     death_place   text,
     burial_place  text,
@@ -80,9 +80,7 @@ CREATE TABLE IF NOT EXISTS public.relations (
     board_id      uuid        NOT NULL REFERENCES public.boards(id) ON DELETE CASCADE,
     person_a_id   uuid        NOT NULL REFERENCES public.persons(id) ON DELETE CASCADE,
     person_b_id   uuid        NOT NULL REFERENCES public.persons(id) ON DELETE CASCADE,
-    type          text        NOT NULL CHECK (type IN (
-                                  'biological_parent', 'adoptive_parent', 'foster_parent',
-                                  'spouse', 'partner', 'engaged')),
+    type          integer     NOT NULL,
     start_date_id uuid,
     end_date_id   uuid,
     end_reason    text,

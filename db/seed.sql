@@ -24,26 +24,26 @@ BEGIN
 
     -- Board member (owner)
     INSERT INTO public.board_members (board_id, user_id, role)
-    VALUES (board_id, user_id, 'owner');
+    VALUES (board_id, user_id, 0);
 
     -- Fuzzy dates — Person 1
     INSERT INTO public.fuzzy_dates (id, precision, date)
     VALUES
-        (p1_birth_id, 'year', '1920-01-01'),
-        (p1_death_id, 'year', '1985-01-01');
+        (p1_birth_id, 2, '1920-01-01'),
+        (p1_death_id, 2, '1985-01-01');
 
     -- Fuzzy dates — Person 2
     INSERT INTO public.fuzzy_dates (id, precision, date)
     VALUES
-        (p2_birth_id, 'exact', '1923-04-15'),
-        (p2_death_id, 'exact', '1990-11-03');
+        (p2_birth_id, 0, '1923-04-15'),
+        (p2_death_id, 0, '1990-11-03');
 
     -- Person 1
     INSERT INTO public.persons (board_id, first_name, last_name, gender, birth_date_id, death_date_id)
-    VALUES (board_id, 'Hans', 'Mustermann', 'male', p1_birth_id, p1_death_id);
+    VALUES (board_id, 'Hans', 'Mustermann', 0, p1_birth_id, p1_death_id);
 
     -- Person 2
     INSERT INTO public.persons (board_id, first_name, last_name, gender, birth_date_id, death_date_id)
-    VALUES (board_id, 'Maria', 'Mustermann', 'female', p2_birth_id, p2_death_id);
+    VALUES (board_id, 'Maria', 'Mustermann', 1, p2_birth_id, p2_death_id);
 
 END $$;

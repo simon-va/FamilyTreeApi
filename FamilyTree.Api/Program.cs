@@ -5,13 +5,6 @@ using Scalar.AspNetCore;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-SqlMapper.AddTypeHandler(new BoardRoleTypeHandler());
-SqlMapper.AddTypeHandler(new GenderTypeHandler());
-SqlMapper.AddTypeHandler(new FuzzyDatePrecisionTypeHandler());
-SqlMapper.AddTypeHandler(new FuzzyDateFieldPrecisionTypeHandler());
-SqlMapper.AddTypeHandler(new ViewerPrivacyModeTypeHandler());
-SqlMapper.AddTypeHandler(new NullableViewerPrivacyModeTypeHandler());
-SqlMapper.AddTypeHandler(new RelationTypeTypeHandler());
 SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 SqlMapper.AddTypeHandler(new NullableDateOnlyTypeHandler());
 
@@ -25,7 +18,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 });
 
 builder.Services.AddOpenApi(options =>
