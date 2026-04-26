@@ -1,4 +1,5 @@
 using FamilyTreeApiV2.Features.Persons;
+using FamilyTreeApiV2.Features.Relations;
 using FamilyTreeApiV2.Shared;
 using FamilyTreeApiV2.Shared.FuzzyDates;
 
@@ -6,6 +7,27 @@ namespace FamilyTreeApiV2.Features.Import;
 
 internal static class ImportMapper
 {
+    internal static CreateRelationRequest ToCreateRelationRequest(V1Relation v1, Guid personAId, Guid personBId) =>
+        new(
+            PersonAId: personAId,
+            PersonBId: personBId,
+            Type: MapRelationType(v1.Type),
+            StartDate: v1.StartDate is not null ? ToFuzzyDateRequest(v1.StartDate) : null,
+            EndDate: v1.EndDate is not null ? ToFuzzyDateRequest(v1.EndDate) : null,
+            EndReason: v1.EndReason,
+            Notes: v1.Notes);
+
+    private static RelationType MapRelationType(string type) => type switch
+    {
+        "biological_parent" => RelationType.BiologicalParent,
+        "adoptive_parent" => RelationType.AdoptiveParent,
+        "foster_parent" => RelationType.FosterParent,
+        "spouse" => RelationType.Spouse,
+        "partner" => RelationType.Partner,
+        "engaged" => RelationType.Engaged,
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+    };
+
     internal static CreatePersonRequest ToCreatePersonRequest(V1Person v1) =>
         new(
             FirstName: v1.FirstName,

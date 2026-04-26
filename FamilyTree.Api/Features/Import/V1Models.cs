@@ -24,3 +24,13 @@ public record V1FuzzyDate(
     string? DateTo,
     string? DateToPrecision,
     string? Note);
+
+public record V1Relation(
+    string Id,
+    string PersonAId,
+    string PersonBId,
+    string Type,
+    V1FuzzyDate? StartDate,
+    V1FuzzyDate? EndDate,
+    string? EndReason,
+    string Notes);
