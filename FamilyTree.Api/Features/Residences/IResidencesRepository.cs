@@ -10,4 +10,5 @@ public interface IResidencesRepository
     Task<Residence> CreateAsync(Guid boardId, CreateResidenceRequest request, Guid? startDateId, Guid? endDateId, IDbConnection connection, IDbTransaction transaction);
     Task<Residence?> UpdateAsync(Guid boardId, Guid residenceId, UpdateResidenceRequest request, Guid? startDateId, Guid? endDateId, IDbConnection connection, IDbTransaction transaction);
     Task<bool> DeleteAsync(Guid boardId, Guid residenceId);
+    Task SetMovedToResidenceIdAsync(Guid boardId, Guid residenceId, Guid movedToResidenceId, IDbConnection connection, IDbTransaction transaction);
 }

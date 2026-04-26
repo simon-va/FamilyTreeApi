@@ -4,7 +4,7 @@
 
 A web application for building and managing family trees, targeting German-speaking casual users and families (DACH region). The focus is on simplicity, modern UX, data privacy (DSGVO-compliant), and collaborative family tree management.
 
-**Current status:** MVP exists. Auth, Boards, Members, Persons, Relations, and Residences endpoints are implemented. Locks, Documents, and AuditLogs are planned but not yet implemented.
+**Current status:** MVP exists. Auth, Boards, Members, Persons, Relations, Residences, and Import endpoints are implemented. Locks, Documents, and AuditLogs are planned but not yet implemented.
 
 **Frontend:** Angular web app (separate repository). No mobile apps planned at this stage.
 
@@ -47,7 +47,7 @@ FamilyTree.Api/
 ├── Shared/            # Domain concepts used by multiple features, no own controller
 │   └── BoardRole.cs
 ├── Infrastructure/    # Services that talk to external systems, used by multiple features
-│   └── Database/      # DbConnectionFactory + Dapper type handlers (BoardRoleTypeHandler, GenderTypeHandler)
+│   └── Database/      # DbConnectionFactory + Dapper type handlers (e.g. DateOnlyTypeHandler)
 ├── Common/            # Technical cross-cutting concerns, no domain knowledge
 │   └── ErrorMapper.cs
 ├── Extensions/        # DI registration, split by concern
@@ -56,9 +56,13 @@ FamilyTree.Api/
 
 FamilyTree.UnitTests/
 └── Features/
+    ├── Auth/
     ├── Boards/
+    ├── Import/
     ├── Members/
-    └── Persons/
+    ├── Persons/
+    ├── Relations/
+    └── Residences/
 ```
 
 ### Each Feature Folder Contains
@@ -70,7 +74,7 @@ Features/{Name}/
 ├── {Name}Errors.cs          # Static error definitions for this feature
 ├── {Name}Validator.cs       # FluentValidation for request DTOs
 ├── {Name}Controller.cs      # HTTP layer, maps ErrorOr via ErrorMapper
-├── {Name}Dtos.cs            # Request and response DTOs
+├── {Name}Models.cs          # Request and response DTOs
 └── {EnumName}.cs            # Feature-scoped enums (e.g. Gender.cs in Persons/)
 ```
 

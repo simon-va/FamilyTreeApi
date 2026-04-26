@@ -42,5 +42,8 @@ public record V1Residence(
     string? Country,
     string? Street,
     string? Notes,
+    double? Lat,
+    double? Lng,
+    string? MovedToResidenceId,
     V1FuzzyDate? StartDate,
     V1FuzzyDate? EndDate);

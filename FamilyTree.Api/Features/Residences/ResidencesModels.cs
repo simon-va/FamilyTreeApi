@@ -7,6 +7,9 @@ public record UpdateResidenceRequest(
     string? Country,
     string? Street,
     string? Notes,
+    double? Lat,
+    double? Lng,
+    Guid? MovedToResidenceId,
     FuzzyDateRequest? StartDate,
     FuzzyDateRequest? EndDate);
 
@@ -16,6 +19,9 @@ public record CreateResidenceRequest(
     string? Country,
     string? Street,
     string? Notes,
+    double? Lat,
+    double? Lng,
+    Guid? MovedToResidenceId,
     FuzzyDateRequest? StartDate,
     FuzzyDateRequest? EndDate);
 
@@ -27,6 +33,9 @@ public record Residence(
     string? Country,
     string? Street,
     string? Notes,
+    double? Lat,
+    double? Lng,
+    Guid? MovedToResidenceId,
     Guid? StartDateId,
     Guid? EndDateId,
     DateTime CreatedAt);
@@ -39,6 +48,9 @@ public record ResidenceResponse(
     string? Country,
     string? Street,
     string? Notes,
+    double? Lat,
+    double? Lng,
+    Guid? MovedToResidenceId,
     Guid? StartDateId,
     Guid? EndDateId,
     DateTime CreatedAt);

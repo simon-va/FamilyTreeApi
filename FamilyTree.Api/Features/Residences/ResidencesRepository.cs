@@ -26,16 +26,19 @@ public class ResidencesRepository(IDbConnectionFactory dbConnectionFactory) : IR
 
         const string sql = @"
             SELECT
-                id            AS Id,
-                board_id      AS BoardId,
-                person_id     AS PersonId,
-                city          AS City,
-                country       AS Country,
-                street        AS Street,
-                notes         AS Notes,
-                start_date_id AS StartDateId,
-                end_date_id   AS EndDateId,
-                created_at    AS CreatedAt
+                id                    AS Id,
+                board_id              AS BoardId,
+                person_id             AS PersonId,
+                city                  AS City,
+                country               AS Country,
+                street                AS Street,
+                notes                 AS Notes,
+                lat                   AS Lat,
+                lng                   AS Lng,
+                moved_to_residence_id AS MovedToResidenceId,
+                start_date_id         AS StartDateId,
+                end_date_id           AS EndDateId,
+                created_at            AS CreatedAt
             FROM public.residences
             WHERE board_id = @BoardId
             ORDER BY created_at";
@@ -49,16 +52,19 @@ public class ResidencesRepository(IDbConnectionFactory dbConnectionFactory) : IR
 
         const string sql = @"
             SELECT
-                id            AS Id,
-                board_id      AS BoardId,
-                person_id     AS PersonId,
-                city          AS City,
-                country       AS Country,
-                street        AS Street,
-                notes         AS Notes,
-                start_date_id AS StartDateId,
-                end_date_id   AS EndDateId,
-                created_at    AS CreatedAt
+                id                    AS Id,
+                board_id              AS BoardId,
+                person_id             AS PersonId,
+                city                  AS City,
+                country               AS Country,
+                street                AS Street,
+                notes                 AS Notes,
+                lat                   AS Lat,
+                lng                   AS Lng,
+                moved_to_residence_id AS MovedToResidenceId,
+                start_date_id         AS StartDateId,
+                end_date_id           AS EndDateId,
+                created_at            AS CreatedAt
             FROM public.residences
             WHERE id       = @ResidenceId
               AND board_id = @BoardId";
@@ -77,20 +83,23 @@ public class ResidencesRepository(IDbConnectionFactory dbConnectionFactory) : IR
     {
         const string sql = @"
             INSERT INTO public.residences
-                (board_id, person_id, city, country, street, notes, start_date_id, end_date_id)
+                (board_id, person_id, city, country, street, notes, lat, lng, moved_to_residence_id, start_date_id, end_date_id)
             VALUES
-                (@BoardId, @PersonId, @City, @Country, @Street, @Notes, @StartDateId, @EndDateId)
+                (@BoardId, @PersonId, @City, @Country, @Street, @Notes, @Lat, @Lng, @MovedToResidenceId, @StartDateId, @EndDateId)
             RETURNING
-                id            AS Id,
-                board_id      AS BoardId,
-                person_id     AS PersonId,
-                city          AS City,
-                country       AS Country,
-                street        AS Street,
-                notes         AS Notes,
-                start_date_id AS StartDateId,
-                end_date_id   AS EndDateId,
-                created_at    AS CreatedAt";
+                id                    AS Id,
+                board_id              AS BoardId,
+                person_id             AS PersonId,
+                city                  AS City,
+                country               AS Country,
+                street                AS Street,
+                notes                 AS Notes,
+                lat                   AS Lat,
+                lng                   AS Lng,
+                moved_to_residence_id AS MovedToResidenceId,
+                start_date_id         AS StartDateId,
+                end_date_id           AS EndDateId,
+                created_at            AS CreatedAt";
 
         return await connection.QuerySingleAsync<Residence>(sql, new
         {
@@ -100,6 +109,9 @@ public class ResidencesRepository(IDbConnectionFactory dbConnectionFactory) : IR
             request.Country,
             request.Street,
             request.Notes,
+            request.Lat,
+            request.Lng,
+            request.MovedToResidenceId,
             StartDateId = startDateId,
             EndDateId = endDateId
         }, transaction);
@@ -117,25 +129,31 @@ public class ResidencesRepository(IDbConnectionFactory dbConnectionFactory) : IR
         const string sql = @"
             UPDATE public.residences
             SET
-                city          = @City,
-                country       = @Country,
-                street        = @Street,
-                notes         = @Notes,
-                start_date_id = @StartDateId,
-                end_date_id   = @EndDateId
+                city                  = @City,
+                country               = @Country,
+                street                = @Street,
+                notes                 = @Notes,
+                lat                   = @Lat,
+                lng                   = @Lng,
+                moved_to_residence_id = @MovedToResidenceId,
+                start_date_id         = @StartDateId,
+                end_date_id           = @EndDateId
             WHERE id       = @ResidenceId
               AND board_id = @BoardId
             RETURNING
-                id            AS Id,
-                board_id      AS BoardId,
-                person_id     AS PersonId,
-                city          AS City,
-                country       AS Country,
-                street        AS Street,
-                notes         AS Notes,
-                start_date_id AS StartDateId,
-                end_date_id   AS EndDateId,
-                created_at    AS CreatedAt";
+                id                    AS Id,
+                board_id              AS BoardId,
+                person_id             AS PersonId,
+                city                  AS City,
+                country               AS Country,
+                street                AS Street,
+                notes                 AS Notes,
+                lat                   AS Lat,
+                lng                   AS Lng,
+                moved_to_residence_id AS MovedToResidenceId,
+                start_date_id         AS StartDateId,
+                end_date_id           AS EndDateId,
+                created_at            AS CreatedAt";
 
         return await connection.QuerySingleOrDefaultAsync<Residence>(sql, new
         {
@@ -145,8 +163,32 @@ public class ResidencesRepository(IDbConnectionFactory dbConnectionFactory) : IR
             request.Country,
             request.Street,
             request.Notes,
+            request.Lat,
+            request.Lng,
+            request.MovedToResidenceId,
             StartDateId = startDateId,
             EndDateId = endDateId
+        }, transaction);
+    }
+
+    public async Task SetMovedToResidenceIdAsync(
+        Guid boardId,
+        Guid residenceId,
+        Guid movedToResidenceId,
+        IDbConnection connection,
+        IDbTransaction transaction)
+    {
+        const string sql = @"
+            UPDATE public.residences
+            SET moved_to_residence_id = @MovedToResidenceId
+            WHERE id       = @ResidenceId
+              AND board_id = @BoardId";
+
+        await connection.ExecuteAsync(sql, new
+        {
+            ResidenceId = residenceId,
+            BoardId = boardId,
+            MovedToResidenceId = movedToResidenceId
         }, transaction);
     }
 

@@ -15,6 +15,9 @@ internal static class ImportMapper
             Country: v1.Country,
             Street: v1.Street,
             Notes: v1.Notes,
+            Lat: v1.Lat,
+            Lng: v1.Lng,
+            MovedToResidenceId: null,
             StartDate: v1.StartDate is not null ? ToFuzzyDateRequest(v1.StartDate) : null,
             EndDate: v1.EndDate is not null ? ToFuzzyDateRequest(v1.EndDate) : null);
 

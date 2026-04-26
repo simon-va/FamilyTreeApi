@@ -106,5 +106,6 @@ public class ResidencesHandler(
 
     private static ResidenceResponse ToResidenceResponse(Residence residence) =>
         new(residence.Id, residence.BoardId, residence.PersonId, residence.City, residence.Country,
-            residence.Street, residence.Notes, residence.StartDateId, residence.EndDateId, residence.CreatedAt);
+            residence.Street, residence.Notes, residence.Lat, residence.Lng, residence.MovedToResidenceId,
+            residence.StartDateId, residence.EndDateId, residence.CreatedAt);
 }

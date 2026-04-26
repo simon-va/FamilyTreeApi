@@ -107,16 +107,19 @@ BEFORE DELETE ON public.relations
 FOR EACH ROW EXECUTE FUNCTION delete_relation_fuzzy_dates();
 
 CREATE TABLE IF NOT EXISTS public.residences (
-    id            uuid        NOT NULL DEFAULT gen_random_uuid(),
-    board_id      uuid        NOT NULL REFERENCES public.boards(id) ON DELETE CASCADE,
-    person_id     uuid        NOT NULL REFERENCES public.persons(id) ON DELETE CASCADE,
-    city          text,
-    country       text,
-    street        text,
-    notes         text,
-    start_date_id uuid,
-    end_date_id   uuid,
-    created_at    timestamptz NOT NULL DEFAULT now(),
+    id                    uuid             NOT NULL DEFAULT gen_random_uuid(),
+    board_id              uuid             NOT NULL REFERENCES public.boards(id) ON DELETE CASCADE,
+    person_id             uuid             NOT NULL REFERENCES public.persons(id) ON DELETE CASCADE,
+    city                  text,
+    country               text,
+    street                text,
+    notes                 text,
+    lat                   double precision,
+    lng                   double precision,
+    moved_to_residence_id uuid             REFERENCES public.residences(id) ON DELETE SET NULL,
+    start_date_id         uuid,
+    end_date_id           uuid,
+    created_at            timestamptz      NOT NULL DEFAULT now(),
     CONSTRAINT pk_residences PRIMARY KEY (id)
 );
 

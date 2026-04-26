@@ -34,7 +34,7 @@ public class ImportHandler(
         if (v1Relations is null)
             return ImportErrors.OldApiFailed;
 
-        var v1Residences = await tobitApiService.GetResidencesAsync(token);
+        var v1Residences = (await tobitApiService.GetResidencesAsync(token))?.ToList();
         if (v1Residences is null)
             return ImportErrors.OldApiFailed;
 
@@ -97,6 +97,7 @@ public class ImportHandler(
                 transaction);
         }
 
+        var residenceIdMap = new Dictionary<string, Guid>();
         foreach (var v1Residence in v1Residences)
         {
             if (!personIdMap.TryGetValue(v1Residence.PersonId, out var personId))
@@ -114,13 +115,28 @@ public class ImportHandler(
             if (endDateResult.IsError)
                 return endDateResult.Errors;
 
-            await residencesRepository.CreateAsync(
+            var residence = await residencesRepository.CreateAsync(
                 board.Id,
                 residenceRequest,
                 startDateResult.Value?.Id,
                 endDateResult.Value?.Id,
                 connection,
                 transaction);
+
+            residenceIdMap[v1Residence.Id] = residence.Id;
+        }
+
+        foreach (var v1Residence in v1Residences)
+        {
+            if (v1Residence.MovedToResidenceId is null)
+                continue;
+
+            if (!residenceIdMap.TryGetValue(v1Residence.Id, out var residenceId) ||
+                !residenceIdMap.TryGetValue(v1Residence.MovedToResidenceId, out var movedToResidenceId))
+                continue;
+
+            await residencesRepository.SetMovedToResidenceIdAsync(
+                board.Id, residenceId, movedToResidenceId, connection, transaction);
         }
 
         transaction.Commit();
