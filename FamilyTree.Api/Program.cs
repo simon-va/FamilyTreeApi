@@ -11,6 +11,7 @@ SqlMapper.AddTypeHandler(new FuzzyDatePrecisionTypeHandler());
 SqlMapper.AddTypeHandler(new FuzzyDateFieldPrecisionTypeHandler());
 SqlMapper.AddTypeHandler(new ViewerPrivacyModeTypeHandler());
 SqlMapper.AddTypeHandler(new NullableViewerPrivacyModeTypeHandler());
+SqlMapper.AddTypeHandler(new RelationTypeTypeHandler());
 
 var builder = WebApplication.CreateBuilder(args);
 

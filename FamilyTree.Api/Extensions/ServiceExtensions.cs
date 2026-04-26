@@ -2,6 +2,7 @@ using FamilyTreeApiV2.Features.Auth;
 using FamilyTreeApiV2.Features.Boards;
 using FamilyTreeApiV2.Features.Members;
 using FamilyTreeApiV2.Features.Persons;
+using FamilyTreeApiV2.Features.Relations;
 using FamilyTreeApiV2.Infrastructure.Database;
 using FamilyTreeApiV2.Infrastructure.Supabase;
 using FamilyTreeApiV2.Shared.FuzzyDates;
@@ -52,6 +53,9 @@ public static class ServiceExtensions
         services.AddScoped<IPersonsRepository, PersonsRepository>();
         services.AddScoped<IFuzzyDateRepository, FuzzyDateRepository>();
         services.AddScoped<PersonsHandler>();
+
+        services.AddScoped<IRelationsRepository, RelationsRepository>();
+        services.AddScoped<RelationsHandler>();
 
         services.AddValidatorsFromAssemblyContaining<SignUpRequestValidator>();
 
